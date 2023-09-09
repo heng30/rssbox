@@ -18,11 +18,11 @@ export component RssDialog inherits CDialog {
     callback close();
 
     public function set(config: RssConfig) {
-        line-edit-name.text = Store.rss-name(config.uuid, config.name);
+        line-edit-name.text = config.name;
         use-proxy-checkbox.checked = config.use-proxy;
         root.icon-index = config.icon-index;
 
-        line-edit-name.enabled = !(config.uuid == "unread-uuid" || config.uuid == "favorite-uuid");
+        line-edit-name.enabled = config.uuid != "unread-uuid" || config.uuid != "favorite-uuid";
     }
 
     rect := Rectangle {
@@ -39,6 +39,7 @@ export component RssDialog inherits CDialog {
 
                 line-edit-name := LineEdit {
                     placeholder-text: Store.translator.rss-dialog-name-placeholder;
+text: Store.
                 }
 
                 VerticalLayout {

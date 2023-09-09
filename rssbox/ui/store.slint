@@ -5,7 +5,7 @@ export struct RssListItem {
     url: string,
     title: string,
     pub-date: string,
-    tags: [string],
+    tags: string,
 
     is-read: bool,
 }
@@ -13,10 +13,10 @@ export struct RssListItem {
 export struct RssList {
     uuid: string,
     name: string,
-    is-mark: bool,
     use-proxy: bool,
     icon-index: int,
 
+    is-mark: bool,
     update-time: string,
     items: [RssListItem],
 }
@@ -37,6 +37,7 @@ export struct RssDialogSetting {
 }
 
 export struct RssConfig {
+    uuid: string,
     name: string,
     use-proxy: bool,
     icon-index: int,
@@ -79,7 +80,7 @@ export struct AboutDialog {
 
 
 export global Store  {
-    in-out property<string> current-rsslist-uuid: rss-lists[0].uuid;
+    in-out property<string> current-rss-uuid: rss-lists[0].uuid;
     in-out property<[RssListItem]> rss-list-items: [];
 
     in-out property<[RssList]> rss-lists: [
@@ -161,4 +162,15 @@ export global Store  {
             @image-url("./icons/47.svg"), @image-url("./icons/48.svg"),
         ],
     };
+
+    pure function rss-name(uuid: string, name: string) -> string {
+        if (uuid == "unread-uuid") {
+            return Store.translator.rss-unread;
+        }  else if (uuid == "favorite-uuid") {
+            return Store.translator.rss-favorite;
+        }
+
+        return name;
+    }
 }
+

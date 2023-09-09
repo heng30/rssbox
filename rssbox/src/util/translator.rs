@@ -7,15 +7,16 @@ pub fn tr(text: &str) -> String {
     }
 
     let mut items: HashMap<&str, &str> = HashMap::new();
-    items.insert("出错", "Error");
     items.insert("原因", "Reason");
+    items.insert("出错！", "Error!");
     items.insert("新建成功！", "New Success!");
+    items.insert("新建失败！", "New Failed!");
     items.insert("删除成功！", "Delete Success!");
     items.insert("删除失败！", "Delete Failed!");
     items.insert("复制失败！", "Copy Failed!");
     items.insert("复制成功！", "Copy Success!");
     items.insert("编辑失败！", "Edit Failed!");
-    items.insert("不允许删除!", "Not Allow To Delete!");
+    items.insert("不允许删除！", "Not Allow To Delete!");
     items.insert("删除失败！", "Delete Session Failed!");
     items.insert("删除成功！", "Delete Session Success");
     items.insert("重置成功！", "Reset Success!");

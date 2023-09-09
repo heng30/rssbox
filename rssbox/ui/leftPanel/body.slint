@@ -27,12 +27,12 @@ export component Body inherits Rectangle {
             height: root.item-height;
 
             Rectangle {
-                background: data.uuid == Store.current-rsslist-uuid ? Theme.base-background : (touch.has-hover ? Theme.darker-fill-color : Colors.transparent);
+                background: data.uuid == Store.current-rss-uuid ? Theme.base-background : (touch.has-hover ? Theme.darker-fill-color : Colors.transparent);
 
                 touch := TouchArea {
                     mouse-cursor: self.has-hover ? pointer : default;
                     clicked => {
-                        Logic.switch-rss(Store.current-rsslist-uuid, data.uuid);
+                        Logic.switch-rss(Store.current-rss-uuid, data.uuid);
                     }
                 }
 
@@ -40,7 +40,7 @@ export component Body inherits Rectangle {
                     padding-left: Theme.padding * 2;
                     padding-right: Theme.padding * 2;
 
-                    if (data.uuid == Store.current-rsslist-uuid) : VerticalLayout {
+                    if (data.uuid == Store.current-rss-uuid) : VerticalLayout {
                         alignment: center;
                         height: root.item-height;
                         padding-right: Theme.padding * 2;
@@ -60,24 +60,14 @@ export component Body inherits Rectangle {
                             alignment: center;
                             Image {
                                 source: Store.icon-dialog-setting.icons[Math.max(0, Math.min(data.icon-index, Store.icon-dialog-setting.icons.length - 1))];
-                                colorize: data.uuid == Store.current-rsslist-uuid ? Theme.brand-color : Theme.regular-text-color;
+                                colorize: data.uuid == Store.current-rss-uuid ? Theme.brand-color : Theme.regular-text-color;
                                 width: Theme.enlarge-font-size * 1.2;
                             }
                         }
 
                         name-txt := Text {
-                            pure function name(uuid: string, name: string) -> string {
-                                if (uuid == "unread-uuid") {
-                                    return Store.translator.rss-unread;
-                                }  else if (uuid == "favorite-uuid") {
-                                    return Store.translator.rss-favorite;
-                                }
-
-                                return name;
-                            }
-
-                            color: data.uuid == Store.current-rsslist-uuid ? Theme.brand-color : Theme.regular-text-color;
-                            text: name(data.uuid, data.name);
+                            color: data.uuid == Store.current-rss-uuid ? Theme.brand-color : Theme.regular-text-color;
+                            text: Store.rss-name(data.uuid, data.name);
                             font-size: Theme.enlarge-font-size;
                             overflow: elide;
                             vertical-alignment: center;

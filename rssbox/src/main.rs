@@ -35,10 +35,10 @@ async fn main() -> CResult {
 
     clipboard::init(&ui);
     message::init(&ui);
-    rss::init(&ui);
     window::init(&ui);
     about::init(&ui);
     setting::init(&ui);
+    rss::init(&ui);
 
     ok_cancel_dialog::init(&ui);
     ui.run().unwrap();

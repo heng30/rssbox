@@ -1,9 +1,7 @@
 use crate::config;
 use crate::slint_generatedAppWindow::{AppWindow, Logic, Store};
 use crate::util::{self, translator::tr};
-use log::warn;
 use slint::{ComponentHandle, VecModel, Weak};
-use std::rc::Rc;
 
 pub fn init(ui: &AppWindow) {
     init_setting_dialog(ui.as_weak());
