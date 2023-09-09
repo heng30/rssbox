@@ -1,0 +1,28 @@
+import { Theme } from "../theme.slint";
+import { Divider } from "../base/divider.slint";
+import { Header } from "./header.slint";
+import { Body } from "./body.slint";
+
+export component LPanel inherits Rectangle {
+    width: Theme.left-panel-width;
+    background: @linear-gradient(0deg, Theme.dark-fill-color 0%, Theme.base-background 100%);
+
+    animate width {
+        duration: Theme.default-animate-duration;
+        easing: ease-in-out;
+    }
+
+    VerticalLayout {
+        Header {
+            visible: Theme.left-panel-width > 0;
+        }
+
+        Divider {
+            width: root.width;
+            background: Theme.base-border-color;
+        }
+
+        Body { }
+    }
+}
+

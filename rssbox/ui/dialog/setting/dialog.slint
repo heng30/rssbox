@@ -1,0 +1,107 @@
+import { Theme } from "../../theme.slint";
+import { Store } from "../../store.slint";
+import { Logic } from "../../logic.slint";
+import { Btn } from "../../base/btn.slint";
+import { Divider } from "../../base/divider.slint";
+import { TabBtn } from "../../base/tab-btn.slint";
+import { UI } from "./ui.slint";
+import { Proxy } from "./proxy.slint";
+import { CDialog } from "../../base/cdialog.slint";
+
+export component SettingDialog inherits CDialog {
+    property<string> current-checked-item: "ui";
+
+    callback close();
+
+    visible: Store.setting-dialog-config.show;
+    title: Store.translator.setting;
+    width: 800px;
+
+    VerticalLayout {
+        alignment: start;
+
+        VerticalLayout {
+            spacing: Theme.spacing * 2;
+            padding: Theme.padding * 2;
+            padding-bottom: Theme.padding * 10;
+
+            HorizontalLayout {
+                alignment: space-around;
+                height: Theme.default-font-size + Theme.padding * 2;
+
+                TabBtn {
+                    text: Store.translator.setting-dialog-ui;
+                    icon: @image-url("../../images/setting-fill.svg");
+                    checked: current-checked-item == "ui";
+                    clicked => {
+                        current-checked-item = "ui";
+                    }
+                }
+
+                TabBtn {
+                    text: Store.translator.setting-dialog-proxy;
+                    icon: @image-url("../../images/proxy.svg");
+                    checked: current-checked-item == "proxy";
+                    clicked => {
+                        current-checked-item = "proxy";
+                    }
+                }
+            }
+
+            HorizontalLayout {
+                alignment: center;
+                Divider {
+                    width: 100%;
+                }
+            }
+
+            Rectangle {
+                ui-tab := UI {
+                    visible: current-checked-item == "ui";
+                    font-size: Theme.default-font-size / 1px;
+                    font-family: Store.setting-dialog-config.ui.font-family;
+                    win-width: Theme.default-width / 1px;
+                    win-height: Theme.default-height / 1px;
+                }
+
+                proxy-tab := Proxy {
+                    visible: current-checked-item == "proxy";
+                    proxy-url: Store.setting-dialog-config.proxy.url;
+                    proxy-port: Store.setting-dialog-config.proxy.port;
+                }
+            }
+        }
+    }
+
+    cancel-clicked => {
+        Logic.setting-cancel();
+
+        ui-tab.font-size = Theme.default-font-size / 1px;
+        ui-tab.font-family = Store.setting-dialog-config.ui.font-family;
+        ui-tab.win-width = Theme.default-width / 1px;
+        ui-tab.win-height = Theme.default-height / 1px;
+        ui-tab.set-language(Store.setting-dialog-config.ui.language);
+
+        Store.setting-dialog-config.show = false;
+        root.close();
+    }
+
+    ok-clicked => {
+        Logic.setting-ok({
+            ui: {
+                font-size: ui-tab.font-size,
+                font-family: ui-tab.font-family,
+                win-width: ui-tab.win-width,
+                win-height: ui-tab.win-height,
+                language: ui-tab.language
+            },
+            proxy: {
+                url: proxy-tab.proxy-url,
+                port: proxy-tab.proxy-port
+            },
+        });
+
+        Store.setting-dialog-config.show = false;
+        root.close();
+    }
+}

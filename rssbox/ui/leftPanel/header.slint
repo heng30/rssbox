@@ -1,0 +1,43 @@
+import { Theme } from "../theme.slint";
+import { Store } from "../store.slint";
+import { Logic } from "../logic.slint";
+import { TabBtn } from "../base/tab-btn.slint";
+
+export component Header inherits HorizontalLayout {
+    height: Theme.header-height;
+    alignment: space-around;
+
+    TabBtn {
+        text-color: Theme.regular-text-color;
+        icon: @image-url("../images/add.svg");
+        text: Store.translator.new;
+        clicked => {
+            Logic.reset-rss-dialog();
+            Store.rss-dialog-setting.handle-type = "rss-add";
+            Store.rss-dialog-setting.show = true;
+        }
+    }
+    TabBtn {
+        text-color: Theme.regular-text-color;
+        icon: @image-url("../images/edit-text.svg");
+        text: Store.translator.edit;
+        clicked => {
+            Logic.set-rss-dialog(Store.current-rsslist-uuid);
+            Store.rss-dialog-setting.handle-type = "rss-edit";
+            Store.rss-dialog-setting.show = true;
+        }
+    }
+    TabBtn {
+        text-color: Theme.regular-text-color;
+        icon: @image-url("../images/delete-light.svg");
+        text: Store.translator.delete;
+        clicked => {
+            Store.ok-cancel-dialog-setting.title-type = "warning";
+            Store.ok-cancel-dialog-setting.title-text = Store.translator.warning;
+            Store.ok-cancel-dialog-setting.body-text = Store.translator.delete-or-not;
+            Store.ok-cancel-dialog-setting.handle-type = "rss-item";
+            Store.ok-cancel-dialog-setting.handle-uuid = Store.current-rsslist-uuid;
+
+        }
+    }
+}

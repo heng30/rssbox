@@ -1,0 +1,20 @@
+import { Theme } from "../theme.slint";
+import { Header } from "./header.slint";
+import { Body } from "./body/panel.slint";
+import { Divider } from "../base/divider.slint";
+
+export component RPanel inherits VerticalLayout {
+    header := Header{ }
+
+    VerticalLayout {
+        padding-left: Theme.scroll-width;
+        padding-right: Theme.scroll-width;
+
+        Divider {
+            background: Theme.base-border-color;
+        }
+    }
+
+    body := Body {}
+}
+

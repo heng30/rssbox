@@ -1,0 +1,46 @@
+import { Theme } from "../theme.slint";
+import { CenterLayout } from "./center-layout.slint";
+
+export component Btn inherits Rectangle {
+    in-out property<string> text <=> txt.text;
+    in-out property icon <=> img.source;
+    in-out property font-size <=> txt.font-size;
+    in-out property halignment <=> hbox.alignment;
+
+    in-out property<color> bg-color: Theme.brand-color;
+    in-out property<color> bg-hover-color: bg-color.darker(30%);
+    in-out property<color> bg-pressed-color: bg-color.darker(50%);
+    in-out property<color> text-color: Colors.white;
+
+    callback clicked <=> touch.clicked;
+
+    background: touch.pressed ? bg-pressed-color : touch.has-hover ? bg-hover-color : bg-color;
+    height: txt.preferred-height * 1.33;
+
+    animate background {
+        duration: Theme.default-animate-duration;
+        easing: ease-in-out;
+    }
+
+    hbox := HorizontalLayout {
+        alignment: center;
+        spacing: Theme.spacing * 2;
+        CenterLayout {
+            img := Image {
+                width: root.icon.width > 0 ? txt.height * 0.618 : 0;
+                colorize: root.text-color;
+            }
+        }
+
+        txt := Text {
+            color: root.text-color;
+            font-size: Theme.enlarge-font-size;
+            font-family: Theme.default-font-family;
+            vertical-alignment: center;
+        }
+    }
+
+    touch := TouchArea {
+        mouse-cursor: self.has-hover ? pointer : default;
+    }
+}

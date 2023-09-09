@@ -1,0 +1,104 @@
+import { Theme } from "./theme.slint";
+import { Logic } from "./logic.slint";
+import { Util } from "./util.slint";
+import { Store } from "./store.slint";
+import { Store, RssConfig } from "./store.slint";
+import { Blanket } from "./base/blanket.slint";
+import { LPanel } from "./leftPanel/panel.slint";
+import { RPanel } from "./rightPanel/panel.slint";
+import { Message } from "./base/message.slint";
+import { RssDialog } from "./dialog/rss/dialog.slint";
+import { SettingDialog } from "./dialog/setting/dialog.slint";
+import { AboutDialog } from "./dialog/about.slint";
+import { IconDialog } from "./dialog/icons.slint";
+import { HelpDialog } from "./dialog/help.slint";
+import { OkCancelDialog } from "./dialog/ok-cancel.slint";
+
+export component AppWindow inherits Window {
+    default-font-size: Theme.default-font-size;
+    default-font-family: Theme.default-font-family;
+    preferred-width: Theme.default-width;
+    preferred-height: Theme.default-height;
+    // background: Theme.base-background;
+    icon: @image-url("./images/robot.png");
+    forward-focus: fscope;
+    no-frame: true;
+    title: "rssbox";
+
+    public function rss-dialog-set(config: RssConfig) {
+        rss-dialog.set(config);
+    }
+
+    fscope := FocusScope {
+        property <bool> is-ctrl-pressed: false;
+        key-pressed(event) => {
+            if (event.text == Key.Control) {
+                is-ctrl-pressed = true;
+            } else if (event.text == Key.Escape) {
+                modal.hide();
+            }
+
+            if (is-ctrl-pressed) {
+                if (event.text == ",") {
+                    Theme.toggle-sessions-panel();
+                }
+            }
+            accept
+        }
+
+        key-released(event) => {
+            if (event.text == Key.Control) {
+                is-ctrl-pressed = false;
+            }
+            accept
+        }
+
+        HorizontalLayout {
+            LPanel {}
+            RPanel { }
+        }
+
+        modal := Rectangle {
+            function hide() {
+                if (icon-dialog.visible) {
+                    Store.icon-dialog-setting.show = false;
+                } else if (about-dialog.visible) {
+                    Store.about-dialog.show = false;
+                } else if (help-dialog.visible) {
+                    Store.help-dialog.show = false;
+                }
+            }
+
+            if rss-dialog.visible || setting-dialog.visible || oc-dialog.visible || about-dialog.visible || help-dialog.visible : Blanket { }
+
+            rss-dialog := RssDialog { }
+            setting-dialog := SettingDialog { }
+
+            if icon-dialog.visible : middle-modal := Rectangle {
+                width: 100%; height: 100%; opacity: 0.3;
+                background: Theme.basic-black-color;
+                TouchArea { }
+            }
+
+            icon-dialog := IconDialog {
+                select-index(index) => {
+                    rss-dialog.icon-index = index;
+                }
+            }
+
+            oc-dialog := OkCancelDialog { }
+            about-dialog := AboutDialog { }
+            help-dialog := HelpDialog { }
+        }
+
+        msg := Message {
+            x: root.width / 2 - self.width / 2;
+            y: 50px;
+            text: Store.message.text;
+            type: Store.message.text-type;
+            clicked => { Logic.copy-to-clipboard(self.text); }
+        }
+    }
+}
+
+export { Util, Logic, Store, RssConfig }

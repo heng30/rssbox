@@ -1,0 +1,26 @@
+import { Theme } from "../../theme.slint";
+import { Store } from "../../store.slint";
+import { Logic } from "../../logic.slint";
+import { NoMessageImg } from "../../base/no-message.slint";
+import { CenterLayout } from "../../base/center-layout.slint";
+
+export component Body inherits Rectangle {
+    CenterLayout {
+        NoMessageImg {
+            visible: Store.rss-list-items.length <= 0;
+            width: 800px;
+            text: Store.translator.no-message;
+        }
+    }
+
+    Flickable {
+        for data[index] in Store.rss-list-items : VerticalLayout {
+            spacing: Theme.spacing * 2;
+            padding: Theme.padding * 2;
+            Rectangle {
+                height: 100px;
+                background: red;
+            }
+        }
+    }
+}

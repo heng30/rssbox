@@ -1,0 +1,164 @@
+import { Translator, Translation} from "./translator.slint";
+
+export struct RssListItem {
+    uuid: string,
+    url: string,
+    title: string,
+    pub-date: string,
+    tags: [string],
+
+    is-read: bool,
+}
+
+export struct RssList {
+    uuid: string,
+    name: string,
+    is-mark: bool,
+    use-proxy: bool,
+    icon-index: int,
+
+    update-time: string,
+    items: [RssListItem],
+}
+
+export struct MessageItem {
+    text: string,
+    text-type: string,
+}
+
+export struct IconDialogSetting {
+    show: bool,
+    icons: [image],
+}
+
+export struct RssDialogSetting {
+    show: bool,
+    handle-type: string,
+}
+
+export struct RssConfig {
+    name: string,
+    use-proxy: bool,
+    icon-index: int,
+}
+
+export struct OkCancelDialogSetting {
+    title-type: string,
+    title-text: string,
+    body-text: string,
+
+    handle-type: string,
+    handle-uuid: string,
+}
+
+export struct SettingUI {
+    font-size: string,
+    font-family: string,
+    win-width: string,
+    win-height: string,
+    language: string,
+}
+
+export struct SettingProxy {
+    url: string,
+    port: string,
+}
+
+export struct SettingDialogConfig {
+    show: bool,
+    ui: SettingUI,
+    proxy: SettingProxy,
+}
+
+export struct AboutDialog {
+    show: bool,
+    title: string,
+    text: string,
+    sponsor: string,
+}
+
+
+export global Store  {
+    in-out property<string> current-rsslist-uuid: rss-lists[0].uuid;
+    in-out property<[RssListItem]> rss-list-items: [];
+
+    in-out property<[RssList]> rss-lists: [
+        {
+            name: translator.rss-unread,
+            uuid: "unread-uuid",
+            is-mark: true,
+            use_proxy: false,
+            icon-index: 0,
+        },
+        {
+            name: translator.rss-favorite,
+            uuid: "favorite-uuid",
+            is-mark: true,
+            use_proxy: false,
+            icon-index: 0,
+        },
+    ];
+
+
+    in-out property<RssDialogSetting> rss-dialog-setting: { show: false };
+
+    in-out property<MessageItem> message;
+    in-out property<OkCancelDialogSetting> ok-cancel-dialog-setting;
+    in-out property<Translation> translator: Translator.translation(setting-dialog-config.ui.language == "cn");
+
+    in-out property<SettingDialogConfig> setting-dialog-config: {
+        show: false,
+        ui: {
+            font-size: "20",
+            font-family: "SourceHanSerifCN",
+            win-width: "1200",
+            win-height: "1000",
+            language: "cn",
+        },
+    };
+
+
+    in-out property<AboutDialog> about-dialog: {
+        show: false,
+        title: "RssBox v1.0.0",
+        text: "Based on Slint-UI. Copyright 2022-2030 The Heng30 Company Ltd. All rights reserved. The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.",
+        sponsor: "0xf1199999751b1a3A74590adBf95401D19AB30014",
+    };
+
+    in-out property<{show: bool, text-cn: string, text-en: string}> help-dialog: {
+        show: false,
+        text-cn: "",
+        text-en: "",
+    };
+
+
+    in-out property<IconDialogSetting> icon-dialog-setting: {
+        show: false,
+        icons : [
+            @image-url("./icons/1.svg"), @image-url("./icons/2.svg"),
+            @image-url("./icons/3.svg"), @image-url("./icons/4.svg"),
+            @image-url("./icons/5.svg"), @image-url("./icons/6.svg"),
+            @image-url("./icons/7.svg"), @image-url("./icons/8.svg"),
+            @image-url("./icons/9.svg"), @image-url("./icons/10.svg"),
+            @image-url("./icons/11.svg"), @image-url("./icons/12.svg"),
+            @image-url("./icons/13.svg"), @image-url("./icons/14.svg"),
+            @image-url("./icons/15.svg"), @image-url("./icons/16.svg"),
+            @image-url("./icons/17.svg"), @image-url("./icons/18.svg"),
+            @image-url("./icons/19.svg"), @image-url("./icons/20.svg"),
+            @image-url("./icons/21.svg"), @image-url("./icons/22.svg"),
+            @image-url("./icons/23.svg"), @image-url("./icons/24.svg"),
+            @image-url("./icons/25.svg"), @image-url("./icons/26.svg"),
+            @image-url("./icons/27.svg"), @image-url("./icons/28.svg"),
+            @image-url("./icons/29.svg"), @image-url("./icons/30.svg"),
+            @image-url("./icons/31.svg"), @image-url("./icons/32.svg"),
+            @image-url("./icons/33.svg"), @image-url("./icons/34.svg"),
+            @image-url("./icons/35.svg"), @image-url("./icons/36.svg"),
+            @image-url("./icons/37.svg"), @image-url("./icons/38.svg"),
+            @image-url("./icons/39.svg"), @image-url("./icons/40.svg"),
+            @image-url("./icons/41.svg"), @image-url("./icons/42.svg"),
+            @image-url("./icons/43.svg"), @image-url("./icons/44.svg"),
+            @image-url("./icons/45.svg"), @image-url("./icons/46.svg"),
+            @image-url("./icons/47.svg"), @image-url("./icons/48.svg"),
+        ],
+    };
+}

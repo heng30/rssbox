@@ -1,0 +1,93 @@
+import { CDialog } from "../base/cdialog.slint";
+import { Theme } from "../theme.slint";
+import { Logic } from "../logic.slint";
+import { Store } from "../store.slint";
+import { IconBtn } from "../base/icon-btn.slint";
+import { CenterLayout } from "../base/center-layout.slint";
+import { Brand } from "../base/brand.slint";
+
+export component AboutDialog inherits CDialog {
+    visible: Store.about-dialog.show;
+
+    title: Store.translator.about;
+    title-bg: Theme.brand-color;
+    width: 800px;
+    background: Theme.base-background;
+    is-hide-btns: true;
+
+    rect := Rectangle {
+        HorizontalLayout {
+            VerticalLayout {
+                width: 20%;
+                Rectangle {
+                    Brand {
+                        width: 80%;
+                    }
+                }
+            }
+
+            VerticalLayout {
+                padding: Theme.padding * 2;
+                spacing: Theme.spacing * 4;
+
+                HorizontalLayout {
+                    alignment: center;
+                    height: title-txt.preferred-height;
+                    title-txt := Text {
+                        color: Theme.primary-text-color;
+                        text: Store.about-dialog.title;
+                        font-size: Theme.default-font-size + 2px;
+                    }
+                }
+
+                Text {
+                    color: Theme.primary-text-color;
+                    text: Store.about-dialog.text;
+                    wrap: word-wrap;
+                }
+
+                VerticalLayout {
+                    spacing: Theme.spacing;
+                    HorizontalLayout {
+                        alignment: center;
+                        spacing: Theme.spacing * 2;
+                        CenterLayout {
+                            Text {
+                                color: Theme.primary-text-color;
+                                text: "🎉❤Buy Me a Coffee(MetaMask)❤🎉";
+                            }
+                        }
+
+
+                        CenterLayout {
+                            IconBtn {
+                                icon: @image-url("../images/copy.svg");
+                                tip-text: Store.translator.tip-copy;
+                                clicked => {
+                                    Logic.copy-to-clipboard(Store.about-dialog.sponsor)
+                                }
+                            }
+                        }
+                    }
+
+                    HorizontalLayout {
+                        alignment: center;
+                        Text {
+                            color: Theme.primary-text-color;
+                            text: Store.about-dialog.sponsor;
+                            wrap: word-wrap;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    ok-clicked => {
+        Store.about-dialog.show = false;
+    }
+
+    cancel-clicked => {
+        Store.about-dialog.show = false;
+    }
+}

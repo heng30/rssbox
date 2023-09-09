@@ -1,0 +1,105 @@
+import { Theme } from "../theme.slint";
+import { Store } from "../store.slint";
+import { Logic } from "../logic.slint";
+import { IconBtn } from "../base/icon-btn.slint";
+import { IconBtn } from "../base/icon-btn.slint";
+import { Brand } from "../base/brand.slint";
+import { CenterLayout } from "../base/center-layout.slint";
+
+export component Body inherits Rectangle {
+    private property<length> item-height: 45px;
+
+    VerticalLayout {
+        alignment: end;
+        CenterLayout {
+            Brand {
+                width: root.width * 0.5;
+                opacity: 0.2;
+            }
+        }
+    }
+
+    Flickable {
+        viewport-height: Store.rss-lists.length * root.item-height;
+
+        for data[index] in Store.rss-lists : VerticalLayout {
+            y: index * item-height;
+            height: root.item-height;
+
+            Rectangle {
+                background: data.uuid == Store.current-rsslist-uuid ? Theme.base-background : (touch.has-hover ? Theme.darker-fill-color : Colors.transparent);
+
+                touch := TouchArea {
+                    mouse-cursor: self.has-hover ? pointer : default;
+                    clicked => {
+                        Logic.switch-rss(Store.current-rsslist-uuid, data.uuid);
+                    }
+                }
+
+                HorizontalLayout {
+                    padding-left: Theme.padding * 2;
+                    padding-right: Theme.padding * 2;
+
+                    if (data.uuid == Store.current-rsslist-uuid) : VerticalLayout {
+                        alignment: center;
+                        height: root.item-height;
+                        padding-right: Theme.padding * 2;
+
+                        Rectangle {
+                            width: 4px;
+                            height: 80%;
+                            border-radius: 2px;
+                            background: Theme.brand-color;
+                        }
+                    }
+
+                    HorizontalLayout {
+                        spacing: Theme.spacing * 2;
+
+                        VerticalLayout {
+                            alignment: center;
+                            Image {
+                                source: Store.icon-dialog-setting.icons[Math.max(0, Math.min(data.icon-index, Store.icon-dialog-setting.icons.length - 1))];
+                                colorize: data.uuid == Store.current-rsslist-uuid ? Theme.brand-color : Theme.regular-text-color;
+                                width: Theme.enlarge-font-size * 1.2;
+                            }
+                        }
+
+                        name-txt := Text {
+                            pure function name(uuid: string, name: string) -> string {
+                                if (uuid == "unread-uuid") {
+                                    return Store.translator.rss-unread;
+                                }  else if (uuid == "favorite-uuid") {
+                                    return Store.translator.rss-favorite;
+                                }
+
+                                return name;
+                            }
+
+                            color: data.uuid == Store.current-rsslist-uuid ? Theme.brand-color : Theme.regular-text-color;
+                            text: name(data.uuid, data.name);
+                            font-size: Theme.enlarge-font-size;
+                            overflow: elide;
+                            vertical-alignment: center;
+                        }
+                    }
+
+                    HorizontalLayout {
+                        alignment: end;
+
+                        VerticalLayout {
+                            alignment: center;
+                            IconBtn {
+                                icon: @image-url("../images/star.svg");
+                                colorize: data.is-mark ? Theme.mark-color : Theme.unmark-color;
+                                clicked => {
+                                    Logic.toggle-rss-mark(index, data.uuid);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

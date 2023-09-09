@@ -1,0 +1,73 @@
+import { Theme } from "../theme.slint";
+import { Store } from "../store.slint";
+import { Logic } from "../logic.slint";
+import { IconBtn } from "../base/icon-btn.slint";
+import { CenterLayout } from "../base/center-layout.slint";
+import { Tip } from "../base/tip.slint";
+
+export component Header inherits Rectangle {
+    height: Theme.header-height;
+
+    animate x {
+        duration: Theme.default-animate-duration;
+        easing: ease-in-out;
+    }
+
+    VerticalLayout {
+        alignment: center;
+        padding-left: Theme.padding * 2;
+        padding-right: Theme.padding * 2;
+
+        HorizontalLayout {
+            spacing: Theme.spacing * 2;
+
+            HorizontalLayout {
+                alignment: start;
+                spacing: Theme.spacing * 2;
+
+                CenterLayout {
+                    IconBtn {
+                        icon: Theme.left-panel-width > 0 ?
+                                  @image-url("../images/arrow-left.svg") :
+                                  @image-url("../images/arrow-right.svg");
+
+                        clicked => {
+                            Theme.toggle-sessions-panel();
+                        }
+                    }
+                }
+            }
+
+            HorizontalLayout {
+                spacing: Theme.spacing * 2;
+                IconBtn {
+                    icon: @image-url("../images/setting-fill.svg");
+                    tip-pos: "left";
+                    tip-text: Store.translator.tip-setting;
+                    clicked => {
+                        Store.setting-dialog-config.show = true;
+                    }
+                }
+
+                IconBtn {
+                    icon: @image-url("../images/help.svg");
+                    tip-pos: "left";
+                    tip-text: Store.translator.tip-help;
+                    clicked => {
+                        Store.help-dialog.show = true;
+                    }
+                }
+
+                IconBtn {
+                    icon: @image-url("../images/about.svg");
+                    tip-pos: "left";
+                    tip-text: Store.translator.tip-about;
+                    clicked => {
+                        Store.about-dialog.show = true;
+                    }
+                }
+            }
+        }
+    }
+}
+

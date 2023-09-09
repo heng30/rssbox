@@ -1,0 +1,68 @@
+import { Theme } from "../theme.slint";
+import { Store } from "../store.slint";
+import { Btn } from "./btn.slint";
+import { IconBtn } from "./icon-btn.slint";
+import { CenterLayout } from "./center-layout.slint";
+
+export component CDialog inherits Rectangle {
+    in-out property title <=> txt.text;
+    in-out property<color> title-bg: Theme.brand-color;
+    in-out property<bool> is-hide-btns: false;
+
+    callback cancel-clicked();
+    callback ok-clicked();
+
+    visible: false;
+    width: 800px;
+    height: vbox.preferred-height;
+    background: Theme.base-background;
+
+    vbox := VerticalLayout {
+        alignment: space-between;
+
+        Rectangle {
+            height: txt.preferred-height * 1.33;
+            background: root.title-bg;
+            txt := Text {
+                color: Colors.white;
+                font-size: Theme.default-font-size + 1px;
+            }
+
+            if (is-hide-btns) : HorizontalLayout {
+                alignment: end;
+                padding-right: Theme.padding;
+                CenterLayout {
+                    IconBtn {
+                        width: Theme.icon-size;
+                        icon: @image-url("../images/close.svg");
+                        colorize: txt.color;
+                        hover-color: root.title-bg.darker(15%);
+                        clicked => { root.cancel-clicked(); }
+                    }
+                }
+             }
+        }
+
+        VerticalLayout {
+            @children
+        }
+
+        if (!is-hide-btns) : Rectangle {
+            background: root.background;
+            HorizontalLayout {
+                cancel-btn := Btn {
+                    text: Store.translator.cancel;
+                    bg-color: Theme.danger-color;
+                    icon: @image-url("../images/cancel.svg");
+                    clicked => { root.cancel-clicked(); }
+                }
+
+                Btn {
+                    text: Store.translator.ok;
+                    icon: @image-url("../images/success-fill.svg");
+                    clicked => { root.ok-clicked(); }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,28 @@
+import { RssConfig, SettingDialogConfig } from "./store.slint";
+
+export global Logic {
+    callback hide-window();
+
+    callback new-rss(RssConfig);
+    callback save-rss(string, RssConfig);
+
+    callback set-rss-dialog(string);
+    callback reset-rss-dialog();
+
+    callback switch-rss(string, string);
+    callback toggle-rss-mark(int, string);
+    callback delete-rss(string);
+
+
+
+    callback reset-current-rss();
+    callback handle-rss-dialog(string, string);
+
+    callback show-message(string, string);
+    callback copy-to-clipboard(string);
+    callback handle-ok-cancel-dialog(string, string);
+
+    callback setting-cancel();
+    callback setting-ok(SettingDialogConfig);
+}
+

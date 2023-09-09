@@ -1,0 +1,143 @@
+import { Theme } from "../theme.slint";
+import { BaseLogic } from "./logic.slint";
+import { CDialog } from "./cdialog.slint";
+import { IconBtn } from "./icon-btn.slint";
+import { CenterLayout } from "./center-layout.slint";
+import { MDItem } from "./data.slint";
+import { CodeLineNumber } from "./code-line-nunber.slint";
+
+export component MDTextItem inherits TextInput {
+    wrap: word-wrap;
+    color: Theme.regular-text-color;
+    font-size: Theme.body-font-size;
+    single-line: false;
+    read-only: true;
+}
+
+export component MD inherits Rectangle {
+    preferred-width: vbox.preferred-width;
+    preferred-height: vbox.preferred-height;
+    in-out property<string> org-text;
+    in-out property<[MDItem]> items: [];
+
+    in-out property<string> tip-text: "Copy";
+
+    callback copy(string);
+
+    vbox := VerticalLayout {
+        for item in items : HorizontalLayout {
+            if item.text-type == "plain" : Rectangle {
+                height: txt-plain.preferred-height;
+                txt-plain := MDTextItem {
+                    width: parent.width;
+                    text: item.text;
+                }
+            }
+
+            if item.text-type == "list-item": HorizontalLayout {
+                padding-top: Theme.padding;
+                padding-bottom: Theme.padding;
+
+                txt-list-item := MDTextItem {
+                    text: item.text;
+                }
+            }
+
+            if item.text-type == "title-1": HorizontalLayout {
+                padding-top: Theme.padding;
+                padding-bottom: Theme.padding;
+
+                MDTextItem {
+                    text: item.text;
+                    color: Theme.primary-text-color;
+                    font-size: Theme.title1-font-size;
+                }
+            }
+
+            if item.text-type == "title-2": HorizontalLayout {
+                padding-top: Theme.padding;
+                padding-bottom: Theme.padding;
+
+                MDTextItem {
+                    text: item.text;
+                    color: Theme.primary-text-color;
+                    font-size: Theme.title2-font-size;
+                }
+            }
+
+            if item.text-type == "title-3": HorizontalLayout {
+                padding-top: Theme.padding;
+                padding-bottom: Theme.padding;
+
+                MDTextItem {
+                    text: item.text;
+                    color: Theme.primary-text-color;
+                    font-size: Theme.title3-font-size;
+                }
+            }
+
+            if item.text-type == "title-4": HorizontalLayout {
+                padding-top: Theme.padding;
+                padding-bottom: Theme.padding;
+
+                MDTextItem {
+                    text: item.text;
+                    color: Theme.primary-text-color;
+                    font-size: Theme.title4-font-size;
+                }
+            }
+
+            if item.text-type == "code" : VerticalLayout {
+                padding: Theme.padding * 2;
+
+                Rectangle {
+                    background: Theme.code-background;
+                    height: txt-code.preferred-height + Theme.padding * 4;
+                    border-radius: Theme.border-radius;
+
+                    HorizontalLayout {
+                        x: Theme.padding * 2;
+                        y: Theme.padding * 2;
+                        width: parent.width - self.x;
+                        alignment: start;
+                        spacing: cln.text != "" ? Theme.padding : 0px;
+
+                        cln := CodeLineNumber {
+                            width: self.text != "" ? self.preferred-width : 0;
+                            height: txt-code.preferred-height;
+                            // text: "01\n02\n03\n01\n02\n03\n01\n02";
+                            text: BaseLogic.code-line-text(item.text);
+                        }
+
+                        txt-code := MDTextItem {
+                            text: item.text;
+                            font-size: Theme.code-font-size;
+                            font-family: Theme.code-font-family;
+                        }
+                    }
+
+                    img := IconBtn {
+                        x: parent.width - self.width - Theme.padding;
+                        y: Theme.padding;
+                        icon: @image-url("../images/copy.svg");
+                        hover-color: Theme.hover-color-dark;
+                        tip-text: root.tip-text;
+                        clicked => {
+                            root.copy(item.text);
+                        }
+                    }
+                }
+            }
+
+            if item.text-type == "image": VerticalLayout {
+                HorizontalLayout {
+                    alignment: center;
+                    Image {
+                        max-width: Theme.max-image-width;
+                        source: item.img;
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,36 @@
+import { CDialog } from "../base/cdialog.slint";
+import { Theme } from "../theme.slint";
+import { Store } from "../store.slint";
+
+export component HelpDialog inherits CDialog {
+    visible: Store.help-dialog.show;
+
+    title: Store.translator.help;
+    title-bg: Theme.brand-color;
+    is-hide-btns: true;
+    width: 1200px;
+    height: 700px;
+
+    Rectangle {
+        background: Theme.base-background;
+        Flickable {
+            HorizontalLayout {
+                padding: Theme.padding;
+                Text {
+                    color: Theme.primary-text-color;
+                    text: Store.setting-dialog-config.ui.language == "cn" ?
+                              Store.help-dialog.text-cn : Store.help-dialog.text-en;
+                    wrap: word-wrap;
+                }
+            }
+        }
+    }
+
+    ok-clicked => {
+        Store.help-dialog.show = false;
+    }
+
+    cancel-clicked => {
+        Store.help-dialog.show = false;
+    }
+}

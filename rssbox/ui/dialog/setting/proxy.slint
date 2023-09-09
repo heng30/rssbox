@@ -1,0 +1,49 @@
+import { ComboBox, LineEdit, CheckBox } from "std-widgets.slint";
+import { Theme } from "../../theme.slint";
+import { Store } from "../../store.slint";
+import { Label } from "../../base/label.slint";
+
+export component Proxy inherits VerticalLayout {
+    in-out property proxy-url <=> url-lineedit.text;
+    in-out property proxy-port <=> port-lineedit.text;
+
+    VerticalLayout {
+        spacing: Theme.spacing * 4;
+        alignment: start;
+
+        HorizontalLayout {
+            type-txt := Label {
+                width: Theme.default-label-width;
+                text: Store.translator.setting-dialog-proxy-type;
+            }
+
+            ComboBox {
+                height: type-txt.preferred-height;
+                model: ["Socks5"];
+                current-value: self.model[0];
+            }
+        }
+
+        HorizontalLayout {
+            url-txt := Label {
+                width: Theme.default-label-width;
+                text: "URL/IP:";
+            }
+
+            url-lineedit := LineEdit {
+                placeholder-text: Store.translator.setting-dialog-proxy-url-placeholder;
+            }
+        }
+
+        HorizontalLayout {
+            port-txt := Label {
+                width: Theme.default-label-width;
+                text: Store.translator.setting-dialog-proxy-port;
+            }
+
+            port-lineedit := LineEdit {
+                placeholder-text: Store.translator.setting-dialog-proxy-port-placeholder;
+            }
+        }
+    }
+}
