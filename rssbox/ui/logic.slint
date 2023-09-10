@@ -13,7 +13,14 @@ export global Logic {
     callback reset-rss-dialog();
 
     pure callback parse-tags(string) -> [string];
-    parse-tags(tags) => { return [tags, tags]; }
+    parse-tags(tags) => { return [tags]; }
+
+    callback sync-rss();
+    callback favorite-entry(string);
+    callback remove-entry(string);
+    callback remove-all-entry(string);
+    callback set-read-entry(string);
+    callback set-read-all-entry();
 
     callback show-message(string, string);
     callback copy-to-clipboard(string);

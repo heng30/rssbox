@@ -1,4 +1,4 @@
-use crate::slint_generatedAppWindow::{RssList, RssConfig as UIRssConfig};
+use crate::slint_generatedAppWindow::{RssConfig as UIRssConfig, RssEntry as UIRssEntry, RssList};
 use std::fmt::Debug;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -8,6 +8,15 @@ pub struct RssConfig {
     pub use_proxy: bool,
     pub is_mark: bool,
     pub update_time: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct RssEntry {
+    pub url: String,
+    pub title: String,
+    pub pub_date: String,
+    pub tags: String,
+    pub is_read: bool,
 }
 
 impl From<&RssList> for RssConfig {
@@ -30,6 +39,18 @@ impl From<&UIRssConfig> for RssConfig {
             use_proxy: conf.use_proxy,
             is_mark: false,
             update_time: "".into(),
+        }
+    }
+}
+
+impl From<&UIRssEntry> for RssEntry {
+    fn from(entry: &UIRssEntry) -> Self {
+        RssEntry {
+            url: entry.url.clone().into(),
+            title: entry.title.clone().into(),
+            tags: entry.tags.clone().into(),
+            pub_date: entry.pub_date.clone().into(),
+            is_read: entry.is_read,
         }
     }
 }

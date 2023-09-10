@@ -3,12 +3,12 @@ use crate::db::data::RssConfig;
 use crate::slint_generatedAppWindow::{AppWindow, Logic, RssConfig as UIRssConfig, RssList, Store};
 use crate::util::translator::tr;
 use log::warn;
-use slint::{ComponentHandle, Model, ModelExt, ModelRc, VecModel};
+use slint::{ComponentHandle, Model, ModelExt, ModelRc, SortModel, VecModel};
 use std::cmp::Ordering;
 use uuid::Uuid;
 
-const UNREAD_UUID: &str = "unread-uuid";
-const FAVORITE_UUID: &str = "favorite-uuid";
+pub const UNREAD_UUID: &str = "unread-uuid";
+pub const FAVORITE_UUID: &str = "favorite-uuid";
 
 fn init_db(ui: &AppWindow) {
     for rss in ui.global::<Store>().get_rss_lists().iter() {
@@ -54,6 +54,7 @@ fn init_rss(ui: &AppWindow) {
 
                 let mut rss = RssList {
                     uuid: item.0.into(),
+                    entry: ModelRc::new(VecModel::default()),
                     ..Default::default()
                 };
 
@@ -93,7 +94,10 @@ fn init_rss(ui: &AppWindow) {
                 }
             });
 
-            ui.global::<Store>().set_rss_lists(ModelRc::new(rsslists));
+            ui.global::<Store>()
+                .set_rss_lists(ModelRc::new(VecModel::from(
+                    rsslists.iter().collect::<Vec<_>>(),
+                )));
         }
         Err(e) => {
             warn!("{:?}", e);
@@ -154,11 +158,13 @@ pub fn init(ui: &AppWindow) {
             }
         };
 
-        let mut model: Vec<RssList> = ui.global::<Store>().get_rss_lists().iter().collect();
-        model.push(rss);
-
         ui.global::<Store>()
-            .set_rss_lists(ModelRc::new(VecModel::from(model)));
+            .get_rss_lists()
+            .as_any()
+            .downcast_ref::<VecModel<RssList>>()
+            .expect("We know we set a VecModel earlier")
+            .push(rss);
+
         ui.global::<Logic>()
             .invoke_show_message(tr("新建成功！").into(), "success".into());
     });
@@ -220,11 +226,12 @@ pub fn init(ui: &AppWindow) {
                 continue;
             }
 
-            let mut model: Vec<RssList> = ui.global::<Store>().get_rss_lists().iter().collect();
-            model.remove(index);
-
             ui.global::<Store>()
-                .set_rss_lists(ModelRc::new(VecModel::from(model)));
+                .get_rss_lists()
+                .as_any()
+                .downcast_ref::<VecModel<RssList>>()
+                .expect("We know we set a VecModel earlier")
+                .remove(index);
 
             match db::rss::delete(uuid.as_str()) {
                 Err(e) => {
@@ -288,13 +295,16 @@ pub fn init(ui: &AppWindow) {
             }
 
             let ui = ui_handle.unwrap();
+            let entry = ui.global::<Store>().get_rss_entry();
 
             let mut index = 0;
-            for rss in ui.global::<Store>().get_rss_lists().iter() {
+            for (row, mut rss) in ui.global::<Store>().get_rss_lists().iter().enumerate() {
                 if rss.uuid == old_uuid {
+                    rss.entry = entry.clone();
+                    ui.global::<Store>().get_rss_lists().set_row_data(row, rss);
                     index += 1;
                 } else if rss.uuid == new_uuid {
-                    // TODO: set rss-list-items
+                    ui.global::<Store>().set_rss_entry(rss.entry);
                     ui.global::<Store>().set_current_rss_uuid(new_uuid.clone());
                     index += 1;
                 }

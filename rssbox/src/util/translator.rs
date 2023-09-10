@@ -24,6 +24,8 @@ pub fn tr(text: &str) -> String {
     items.insert("取消收藏成功！", "Unmarked Success!");
     items.insert("保存失败！", "Save Failed!");
     items.insert("保存成功！", "Save Success!");
+    items.insert("收藏失败！", "Favorite Failed!");
+    items.insert("收藏成功！", "Favorite Success!");
     items.insert("隐藏程序失败！", "Hide Window Failed!");
     items.insert("清除缓存失败！", "Clean Cache Failed!");
     items.insert("清除缓存成功！", "Clean Cache Success!");

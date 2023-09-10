@@ -4,13 +4,12 @@ import { Logic } from "../../logic.slint";
 import { CenterLayout } from "../../base/center-layout.slint";
 import { Tag } from "../../base/tag.slint";
 
-export component Item inherits Rectangle {
+export component Entry inherits Rectangle {
     in-out property text <=> txt.text;
     in-out property pub-date-text <=> pub-date-txt.text;
     in-out property<string> tag-text;
     in-out property<bool> is-read: false;
 
-    // background: is-read ? Theme.light-fill-color.darker(4%) : Theme.light-fill-color.darker(2%);
     background: Theme.light-fill-color;
     height: vbox.preferred-height;
     border-radius: Theme.border-radius;

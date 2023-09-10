@@ -9,10 +9,10 @@ pub fn init(ui: &AppWindow) {
 
             if handle_type.as_str() == "rss" {
                 ui.global::<Logic>().invoke_delete_rss(handle_uuid);
-            // } else if handle_type.as_str() == "session-item" {
-            //     ui.global::<Logic>().invoke_delete_session(handle_uuid);
-            // } else if handle_type.as_str() == "session-reset" {
-            //     ui.global::<Logic>().invoke_reset_current_session();
+            } else if handle_type.as_str() == "rss-all-entry" {
+                ui.global::<Logic>().invoke_remove_all_entry(handle_uuid);
+            } else if handle_type.as_str() == "rss-entry" {
+                ui.global::<Logic>().invoke_remove_entry(handle_uuid);
             // } else if handle_type.as_str() == "session-archive-item" {
             //     ui.global::<Logic>().invoke_delete_session_archive(
             //         ui.global::<Store>().get_current_session_uuid(),

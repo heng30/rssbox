@@ -50,8 +50,33 @@ export component Header inherits Rectangle {
                         icon: @image-url("../images/reset.svg");
                         tip-pos: "left";
                         icon-width: self.width * 0.6;
-                        tip-text: Store.translator.tip-sync-all-rss;
-                        clicked => { }
+                        tip-text: Store.translator.tip-sync-rss;
+                        clicked => {
+                            Logic.sync-rss();
+                        }
+                    }
+
+                    IconBtn {
+                        icon: @image-url("../images/mark-read.svg");
+                        icon-width: self.width * 0.7;
+                        tip-pos: "left";
+                        tip-text: Store.translator.tip-set-all-read;
+                        clicked => {
+                            Logic.set-read-all-entry();
+                        }
+                    }
+
+                    IconBtn {
+                        icon: @image-url("../images/delete-light.svg");
+                        tip-pos: "left";
+                        tip-text: Store.translator.tip-delete-all;
+                        clicked => {
+                            Store.ok-cancel-dialog-setting.title-type = "warning";
+                            Store.ok-cancel-dialog-setting.title-text = Store.translator.warning;
+                            Store.ok-cancel-dialog-setting.body-text = Store.translator.delete-or-not;
+                            Store.ok-cancel-dialog-setting.handle-type = "rss-all-entry";
+                            Store.ok-cancel-dialog-setting.handle-uuid = Store.current-rss-uuid;
+                        }
                     }
                 }
 
@@ -88,7 +113,7 @@ export component Header inherits Rectangle {
                     }
 
                     IconBtn {
-                        icon: @image-url("../images/about.svg");
+                        icon: @image-url("../images/info-dark.svg");
                         tip-pos: "left";
                         tip-text: Store.translator.tip-about;
                         clicked => {

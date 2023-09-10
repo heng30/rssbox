@@ -1,6 +1,6 @@
 import { Translator, Translation} from "./translator.slint";
 
-export struct RssListItem {
+export struct RssEntry {
     uuid: string,
     url: string,
     title: string,
@@ -18,7 +18,7 @@ export struct RssList {
 
     is-mark: bool,
     update-time: string,
-    items: [RssListItem],
+    entry: [RssEntry],
 }
 
 export struct MessageItem {
@@ -78,10 +78,8 @@ export struct AboutDialog {
     sponsor: string,
 }
 
-
 export global Store  {
-    in-out property<string> current-rss-uuid: rss-lists[0].uuid;
-    in-out property<[RssListItem]> rss-list-items: [
+    in-out property<[RssEntry]> rss-entry: [
         {
             uuid: "42342e2jkfjk",
             url: "https://google.com",
@@ -99,14 +97,15 @@ export global Store  {
             title: "fwjif  fjwiefj w jwiwjfiwjfiwej iwfjwi jweofjwiefj wifj wifjweio jweifjw ijfwio jwijf wijfwi ojfwi jfwi jwij iwjfwie jwiefjw iojfwi jfwi wfjwi w wejif jwfijw ijwef",
         },
         {
-            uuid: "xx2342jkfjk",
-            url: "http://bing.com",
+            uuid: "2342jkfjk",
+            url: "http://azure.com",
             pub-date: "2023-11-12 13:12:34",
             is-read: true,
             title: "fwjif  fjwiefj w jwiwjfiwjfiwej iwfjwi jweofjwiefj wifj wifjweio jweifjw ijfwio jwijf wijfwi ojfwi jfwi jwij iwjfwie jwiefjw iojfwi jfwi wfjwi w wejif jwfijw ijwef",
         }
     ];
 
+    in-out property<string> current-rss-uuid: rss-lists[0].uuid;
     in-out property<[RssList]> rss-lists: [
         {
             name: translator.rss-unread,

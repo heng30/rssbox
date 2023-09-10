@@ -1,0 +1,72 @@
+import { Theme } from "../../theme.slint";
+import { Store } from "../../store.slint";
+import { Logic } from "../../logic.slint";
+import { CenterLayout } from "../../base/center-layout.slint";
+import { IconBtn } from "../../base/icon-btn.slint";
+import { Tag } from "../../base/tag.slint";
+
+export component ToolBar inherits Rectangle {
+    in-out property<bool> is-read: false;
+    in-out property<string> uuid;
+
+    HorizontalLayout {
+        padding-bottom: Theme.padding;
+        alignment: space-between;
+
+        HorizontalLayout {
+            padding-left: Theme.padding;
+            CenterLayout {
+                Rectangle {
+                    width: Theme.icon-size * 0.6;
+                    height: self.width;
+                    border-radius: self.width/2;
+                    background: is-read ? Theme.success-color : Theme.danger-color;
+                }
+            }
+        }
+
+        HorizontalLayout {
+            padding-right: Theme.padding;
+            spacing: Theme.spacing * 2;
+
+            CenterLayout {
+                IconBtn {
+                    icon: @image-url("../../images/mark-read.svg");
+                    icon-width: self.width * 0.7;
+                    tip-text: Store.translator.tip-mark-read;
+                    tip-pos: "left";
+                    clicked => {
+                        Logic.set-read-entry(root.uuid);
+                    }
+                }
+            }
+
+            CenterLayout {
+                IconBtn {
+                    icon: @image-url("../../images/star-light.svg");
+                    tip-text: Store.translator.tip-favorite;
+                    tip-pos: "left";
+                    clicked => {
+                        Logic.favorite-entry(root.uuid);
+                    }
+                }
+            }
+
+            CenterLayout {
+                IconBtn {
+                    icon: @image-url("../../images/delete-light.svg");
+                    tip-text: Store.translator.tip-delete;
+                    tip-pos: "left";
+                    clicked => {
+                        Store.ok-cancel-dialog-setting.title-type = "warning";
+                        Store.ok-cancel-dialog-setting.title-text = Store.translator.warning;
+                        Store.ok-cancel-dialog-setting.body-text = Store.translator.delete-or-not;
+                        Store.ok-cancel-dialog-setting.handle-type = "rss-entry";
+                        Store.ok-cancel-dialog-setting.handle-uuid = root.uuid;
+                    }
+                }
+            }
+
+        }
+    }
+}

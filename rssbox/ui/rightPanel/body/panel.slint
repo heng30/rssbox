@@ -4,25 +4,31 @@ import { Store } from "../../store.slint";
 import { Logic } from "../../logic.slint";
 import { NoMessageImg } from "../../base/no-message.slint";
 import { CenterLayout } from "../../base/center-layout.slint";
-import { Item } from "./item.slint";
+import { Entry } from "./entry.slint";
+import { ToolBar } from "./toolbar.slint";
 
 export component Body inherits Rectangle {
     CenterLayout {
         NoMessageImg {
-            visible: Store.rss-list-items.length <= 0;
+            visible: Store.rss-entry.length <= 0;
             width: 800px;
             text: Store.translator.no-message;
         }
     }
 
     ListView {
-        for item[index] in Store.rss-list-items : VerticalLayout {
-            padding: Theme.padding;
+        for item[index] in Store.rss-entry : VerticalLayout {
+            padding-top: Theme.padding;
             padding-left: Theme.padding * 4 + Theme.scroll-width;
             padding-right: Theme.padding * 4;
-            padding-bottom: Theme.padding * 4;
+            padding-bottom: Theme.padding * 2;
 
-            Item {
+            ToolBar {
+                uuid: item.uuid;
+                is-read: item.is-read;
+            }
+
+            Entry {
                 text: item.title;
                 tag-text: item.tags;
                 pub-date-text: item.pub-date;

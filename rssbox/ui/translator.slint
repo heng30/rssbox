@@ -47,6 +47,7 @@ export struct Translation {
 
     tip-copy: string,
     tip-delete: string,
+    tip-delete-all: string,
     tip-send: string,
     tip-clear: string,
     tip-stop: string,
@@ -61,7 +62,10 @@ export struct Translation {
     tip-show: string,
     tip-hide: string,
     tip-select-icon: string,
-    tip-sync-all-rss: string,
+    tip-sync-rss: string,
+    tip-favorite: string,
+    tip-mark-read: string,
+    tip-set-all-read: string,
 }
 
 export global Translator {
@@ -99,7 +103,6 @@ export global Translator {
             rss-unread: is-cn ? "未读消息" : "Unread Message",
             rss-favorite: is-cn ? "收藏消息" : "Favorite Message",
 
-
             rss-dialog-title-new: is-cn ?  "新    建" : "New",
             rss-dialog-title-edit: is-cn ? "编    辑" : "Edit",
             rss-dialog-name: is-cn ? "名        称:" : "Name:",
@@ -118,6 +121,7 @@ export global Translator {
             tip-stop: is-cn ? "停止" : "Stop",
             tip-reset: is-cn ? "重置" : "Rest",
             tip-delete: is-cn ? "删除" : "Delete",
+            tip-delete-all: is-cn ? "删除所有" : "Delete All",
             tip-save: is-cn ? "保存" : "Save",
             tip-help: is-cn ? "帮助" : "Help",
             tip-about: is-cn ? "关于" : "About",
@@ -128,7 +132,10 @@ export global Translator {
             tip-show: is-cn ? "显示" : "Show",
             tip-hide: is-cn ? "隐藏" : "Hide",
             tip-select-icon: is-cn ? "选择图标" : "Choose Icon",
-            tip-sync-all-rss: is-cn ? "同步Rss列表" : "Sync All Rss",
+            tip-sync-rss: is-cn ? "同步RSS" : "Sync RSS",
+            tip-favorite: is-cn ? "收藏" : "Favorite",
+            tip-mark-read: is-cn ? "标记为已读" : "Mark Read",
+            tip-set-all-read: is-cn ? "全部标记为已读" : "Set All Entry Read",
         };
     }
 }
