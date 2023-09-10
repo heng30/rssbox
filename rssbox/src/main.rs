@@ -18,7 +18,7 @@ mod logic;
 mod util;
 mod version;
 
-use logic::{about, rss, clipboard, message, ok_cancel_dialog, setting, window};
+use logic::{about, rss, clipboard, message, ok_cancel_dialog, setting, window, entry};
 
 pub type CResult = Result<(), Box<dyn std::error::Error>>;
 
@@ -39,6 +39,7 @@ async fn main() -> CResult {
     about::init(&ui);
     setting::init(&ui);
     rss::init(&ui);
+    entry::init(&ui);
 
     ok_cancel_dialog::init(&ui);
     ui.run().unwrap();

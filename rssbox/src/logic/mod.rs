@@ -8,3 +8,4 @@ pub mod rss;
 pub mod setting;
 pub mod util;
 pub mod window;
+pub mod entry;

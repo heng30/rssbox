@@ -1,0 +1,57 @@
+import { Theme } from "../../theme.slint";
+import { Store } from "../../store.slint";
+import { Logic } from "../../logic.slint";
+import { CenterLayout } from "../../base/center-layout.slint";
+import { Tag } from "../../base/tag.slint";
+
+export component Item inherits Rectangle {
+    in-out property text <=> txt.text;
+    in-out property pub-date-text <=> pub-date-txt.text;
+    in-out property<string> tag-text;
+    in-out property<bool> is-read: false;
+
+    // background: is-read ? Theme.light-fill-color.darker(4%) : Theme.light-fill-color.darker(2%);
+    background: Theme.light-fill-color;
+    height: vbox.preferred-height;
+    border-radius: Theme.border-radius;
+
+    drop-shadow-blur: Theme.padding * 2;
+    drop-shadow-offset-x: Theme.padding;
+    drop-shadow-offset-y: Theme.padding;
+    drop-shadow-color: touch-1.has-hover || touch-2.has-hover ?  Theme.darker-fill-color.darker(20%) : Theme.dark-fill-color;
+
+    touch-1 := TouchArea { }
+
+    vbox := VerticalLayout {
+        padding: Theme.padding * 2;
+        spacing: Theme.spacing * 4;
+
+        txt := Text {
+            wrap: word-wrap;
+            font-size: Theme.enlarge-font-size;
+            color: Theme.primary-text-color;
+
+            touch-2 := TouchArea {
+                mouse-cursor: self.has-hover ? pointer : default;
+            }
+        }
+
+        HorizontalLayout {
+            padding: Theme.padding;
+            alignment: space-between;
+
+            HorizontalLayout {
+                visible: root.tag-text != "";
+                spacing: Theme.spacing;
+                for text in Logic.parse-tags(root.tag-text) : Tag {
+                    text: text;
+                }
+            }
+
+            pub-date-txt := Text {
+                font-size: Theme.default-font-size - 4px;
+                color: Theme.secondary-text-color;
+            }
+        }
+    }
+}

@@ -81,7 +81,31 @@ export struct AboutDialog {
 
 export global Store  {
     in-out property<string> current-rss-uuid: rss-lists[0].uuid;
-    in-out property<[RssListItem]> rss-list-items: [];
+    in-out property<[RssListItem]> rss-list-items: [
+        {
+            uuid: "42342e2jkfjk",
+            url: "https://google.com",
+            pub-date: "2023-10-22 23:12:34",
+            tags: "rust",
+            is-read: false,
+            title: "fwjifwjfiwjfiwej iwfjwi jweofjwiefj wifj wifjweio jweifj jwfiw jiwefj wijf iwjf wije iwej w ijfwio jwijf wijfwi ojfwi jfwi jwij iwjfwie jwiefjw iojfwi wjfiwe wefj wifj wi jfwi",
+        },
+        {
+            uuid: "xx2342jkfjk",
+            url: "https://bing.com",
+            pub-date: "2023-11-12 13:12:34",
+            tags: "slint-ui, rust",
+            is-read: true,
+            title: "fwjif  fjwiefj w jwiwjfiwjfiwej iwfjwi jweofjwiefj wifj wifjweio jweifjw ijfwio jwijf wijfwi ojfwi jfwi jwij iwjfwie jwiefjw iojfwi jfwi wfjwi w wejif jwfijw ijwef",
+        },
+        {
+            uuid: "xx2342jkfjk",
+            url: "http://bing.com",
+            pub-date: "2023-11-12 13:12:34",
+            is-read: true,
+            title: "fwjif  fjwiefj w jwiwjfiwjfiwej iwfjwi jweofjwiefj wifj wifjweio jweifjw ijfwio jwijf wijfwi ojfwi jfwi jwij iwjfwie jwiefjw iojfwi jfwi wfjwi w wejif jwfijw ijwef",
+        }
+    ];
 
     in-out property<[RssList]> rss-lists: [
         {

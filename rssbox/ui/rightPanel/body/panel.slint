@@ -1,8 +1,10 @@
+import { ListView } from "std-widgets.slint";
 import { Theme } from "../../theme.slint";
 import { Store } from "../../store.slint";
 import { Logic } from "../../logic.slint";
 import { NoMessageImg } from "../../base/no-message.slint";
 import { CenterLayout } from "../../base/center-layout.slint";
+import { Item } from "./item.slint";
 
 export component Body inherits Rectangle {
     CenterLayout {
@@ -13,13 +15,18 @@ export component Body inherits Rectangle {
         }
     }
 
-    Flickable {
-        for data[index] in Store.rss-list-items : VerticalLayout {
-            spacing: Theme.spacing * 2;
-            padding: Theme.padding * 2;
-            Rectangle {
-                height: 100px;
-                background: red;
+    ListView {
+        for item[index] in Store.rss-list-items : VerticalLayout {
+            padding: Theme.padding;
+            padding-left: Theme.padding * 4 + Theme.scroll-width;
+            padding-right: Theme.padding * 4;
+            padding-bottom: Theme.padding * 4;
+
+            Item {
+                text: item.title;
+                tag-text: item.tags;
+                pub-date-text: item.pub-date;
+                is-read: item.is-read;
             }
         }
     }

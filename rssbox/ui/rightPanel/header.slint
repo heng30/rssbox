@@ -4,6 +4,7 @@ import { Logic } from "../logic.slint";
 import { IconBtn } from "../base/icon-btn.slint";
 import { CenterLayout } from "../base/center-layout.slint";
 import { Tip } from "../base/tip.slint";
+import { Divider } from "../base/divider.slint";
 
 export component Header inherits Rectangle {
     height: Theme.header-height;
@@ -39,31 +40,60 @@ export component Header inherits Rectangle {
             }
 
             HorizontalLayout {
-                spacing: Theme.spacing * 2;
-                IconBtn {
-                    icon: @image-url("../images/setting-fill.svg");
-                    tip-pos: "left";
-                    tip-text: Store.translator.tip-setting;
-                    clicked => {
-                        Store.setting-dialog-config.show = true;
+                alignment: end;
+
+                HorizontalLayout {
+                    alignment: end;
+                    spacing: Theme.spacing * 2;
+
+                    IconBtn {
+                        icon: @image-url("../images/reset.svg");
+                        tip-pos: "left";
+                        icon-width: self.width * 0.6;
+                        tip-text: Store.translator.tip-sync-all-rss;
+                        clicked => { }
                     }
                 }
 
-                IconBtn {
-                    icon: @image-url("../images/help.svg");
-                    tip-pos: "left";
-                    tip-text: Store.translator.tip-help;
-                    clicked => {
-                        Store.help-dialog.show = true;
+                VerticalLayout {
+                    alignment: center;
+                    padding-left: Theme.padding * 2;
+                    padding-right: Theme.padding * 2;
+
+                    Divider {
+                        width: 2px;
+                        height: root.height * 0.5;
+                        background: Theme.base-border-color;
                     }
                 }
 
-                IconBtn {
-                    icon: @image-url("../images/about.svg");
-                    tip-pos: "left";
-                    tip-text: Store.translator.tip-about;
-                    clicked => {
-                        Store.about-dialog.show = true;
+                HorizontalLayout {
+                    spacing: Theme.spacing * 2;
+                    IconBtn {
+                        icon: @image-url("../images/setting-fill.svg");
+                        tip-pos: "left";
+                        tip-text: Store.translator.tip-setting;
+                        clicked => {
+                            Store.setting-dialog-config.show = true;
+                        }
+                    }
+
+                    IconBtn {
+                        icon: @image-url("../images/help.svg");
+                        tip-pos: "left";
+                        tip-text: Store.translator.tip-help;
+                        clicked => {
+                            Store.help-dialog.show = true;
+                        }
+                    }
+
+                    IconBtn {
+                        icon: @image-url("../images/about.svg");
+                        tip-pos: "left";
+                        tip-text: Store.translator.tip-about;
+                        clicked => {
+                            Store.about-dialog.show = true;
+                        }
                     }
                 }
             }

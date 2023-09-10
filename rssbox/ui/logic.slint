@@ -12,6 +12,9 @@ export global Logic {
     callback set-rss-dialog(string);
     callback reset-rss-dialog();
 
+    pure callback parse-tags(string) -> [string];
+    parse-tags(tags) => { return [tags, tags]; }
+
     callback show-message(string, string);
     callback copy-to-clipboard(string);
     callback handle-ok-cancel-dialog(string, string);
