@@ -1,13 +1,16 @@
 use super::data::SyncItem;
 use super::entry;
 use crate::db;
-use crate::db::data::RssConfig;
+use crate::db::data::{RssConfig, RssEntry};
 use crate::slint_generatedAppWindow::{AppWindow, Logic, RssConfig as UIRssConfig, RssList, Store};
+use crate::util::http as uhttp;
 use crate::util::translator::tr;
 use crate::CResult;
 use log::warn;
+use rss::Channel;
 use slint::{ComponentHandle, Model, ModelExt, ModelRc, VecModel, Weak};
 use std::cmp::Ordering;
+use std::time::Duration;
 use tokio::task::spawn;
 use uuid::Uuid;
 
@@ -343,15 +346,21 @@ pub fn init(ui: &AppWindow) {
 
     let ui_handle = ui.as_weak();
     ui.global::<Logic>().on_sync_rss(move |suuid| {
+        let ui = ui_handle.unwrap();
         if suuid == FAVORITE_UUID {
+            ui.global::<Logic>()
+                .invoke_show_message(tr("不允许刷新！").into(), "warning".into());
             return;
         }
 
-        let ui = ui_handle.unwrap();
         let mut items: Vec<SyncItem> = vec![];
 
         for rss in ui.global::<Store>().get_rss_lists().iter() {
-            if suuid == UNREAD_UUID && rss.uuid != UNREAD_UUID {
+            if rss.uuid == UNREAD_UUID || rss.uuid == FAVORITE_UUID {
+                continue;
+            }
+
+            if suuid == UNREAD_UUID {
                 items.push(rss.into());
             } else if suuid == rss.uuid {
                 items.push(rss.into());
@@ -368,12 +377,55 @@ pub fn init(ui: &AppWindow) {
     });
 }
 
+fn update_new_entry(ui: &AppWindow, suuid: String, entry: Vec<RssEntry>) {}
+
+async fn fetch_entry(config: SyncItem) -> Result<Vec<RssEntry>, Box<dyn std::error::Error>> {
+    let request_timeout = 10;
+
+    let client = uhttp::client(config.use_proxy)?;
+    let content = client
+        .get(&config.url)
+        .headers(uhttp::headers())
+        .timeout(Duration::from_secs(request_timeout))
+        .send()
+        .await?
+        .bytes()
+        .await?;
+
+    let mut entry = vec![];
+    let ch = Channel::read_from(&content[..])?;
+    for item in ch.items() {
+        entry.push(RssEntry {
+            uuid: Uuid::new_v4().to_string(),
+            url: item.link().unwrap_or("").to_string(),
+            title: item.title().unwrap_or("").to_string(),
+            pub_date: item.pub_date().unwrap_or("").to_string(),
+            ..Default::default()
+        });
+    }
+
+    Ok(entry)
+}
+
+// Be careful, It run in another thread
 pub async fn sync_rss(ui: Weak<AppWindow>, items: Vec<SyncItem>) -> CResult {
-    // TODO: fetch data
-    if let Err(e) = slint::invoke_from_event_loop(move || {
-        todo!();
-    }) {
-        warn!("{:?}", e);
+    for item in items.into_iter() {
+        let suuid = item.uuid.clone();
+        match fetch_entry(item).await {
+            Ok(entry) => {
+                warn!("{:?}", entry);
+                let ui = ui.clone();
+                if let Err(e) = slint::invoke_from_event_loop(move || {
+                    let ui = ui.unwrap();
+                    update_new_entry(&ui, suuid, entry);
+                }) {
+                    warn!("{:?}", e);
+                }
+            }
+            Err(e) => {
+                warn!("{:?}", e);
+            }
+        }
     }
     Ok(())
 }

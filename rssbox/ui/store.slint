@@ -17,8 +17,9 @@ export struct RssList {
     use-proxy: bool,
     icon-index: int,
 
-    is-mark: bool,
+    unread_count: int,
     update-time: string,
+    is-mark: bool,
     entry: [RssEntry],
 }
 
@@ -84,7 +85,7 @@ export global Store  {
     in-out property<[RssEntry]> rss-entry: [
         {
             uuid: "42342e2jkfjk",
-            url: "https://google.com",
+            url: "https://www.zhihu.com/rss",
             pub-date: "2023-10-22 23:12:34",
             tags: "rust",
             is-read: false,
@@ -96,14 +97,14 @@ export global Store  {
             pub-date: "2023-11-12 13:12:34",
             tags: "slint-ui, rust",
             is-read: true,
-            title: "fwjif  fjwiefj w jwiwjfiwjfiwej iwfjwi jweofjwiefj wifj wifjweio jweifjw ijfwio jwijf wijfwi ojfwi jfwi jwij iwjfwie jwiefjw iojfwi jfwi wfjwi w wejif jwfijw ijwef",
+            title: "hello world",
         },
         {
             uuid: "2342jkfjk",
             url: "http://azure.com",
             pub-date: "2023-11-12 13:12:34",
             is-read: true,
-            title: "fwjif  fjwiefj w jwiwjfiwjfiwej iwfjwi jweofjwiefj wifj wifjweio jweifjw ijfwio jwijf wijfwi ojfwi jfwi jwij iwjfwie jwiefjw iojfwi jfwi wfjwi w wejif jwfijw ijwef",
+            title: "hello rust",
         }
     ];
 
@@ -112,7 +113,6 @@ export global Store  {
         {
             uuid: "unread-uuid",
             name: translator.rss-unread,
-            url: "https://www.zhihu.com/rss",
             is-mark: true,
             use_proxy: false,
             icon-index: 0,
@@ -120,7 +120,6 @@ export global Store  {
         {
             uuid: "favorite-uuid",
             name: translator.rss-favorite,
-            url: "https://www.zhihu.com/rss",
             is-mark: true,
             use_proxy: false,
             icon-index: 0,

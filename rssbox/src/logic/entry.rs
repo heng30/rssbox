@@ -12,14 +12,7 @@ pub fn get_from_db(suuid: &str) -> Vec<UIRssEntry> {
             .iter()
             .rev()
             .map(|item| match serde_json::from_str::<RssEntry>(&item.1) {
-                Ok(entry) => UIRssEntry {
-                    uuid: item.0.as_str().into(),
-                    url: entry.url.into(),
-                    pub_date: entry.pub_date.into(),
-                    title: entry.title.into(),
-                    tags: entry.tags.into(),
-                    is_read: entry.is_read,
-                },
+                Ok(entry) => entry.into(),
                 Err(e) => {
                     warn!("{:?}", e);
                     UIRssEntry::default()
@@ -31,6 +24,53 @@ pub fn get_from_db(suuid: &str) -> Vec<UIRssEntry> {
             vec![]
         }
     }
+}
+
+pub fn update_entry(ui: &AppWindow, suuid: &str, entry: RssEntry) {
+    if suuid == rss::UNREAD_UUID {
+        return;
+    }
+
+    match serde_json::to_string(&entry) {
+        Ok(data) => {
+            if let Err(e) = db::entry::insert(suuid, entry.uuid.as_str(), &data) {
+                warn!("{:?}", e);
+                return;
+            }
+
+            let cur_suuid = ui.global::<Store>().get_current_rss_uuid();
+
+            for (index, mut rss) in ui.global::<Store>().get_rss_lists().iter().enumerate() {
+                if rss.uuid.as_str() != suuid {
+                    continue;
+                }
+
+                if suuid == cur_suuid.as_str() {
+                    let mut entrys = ui
+                        .global::<Store>()
+                        .get_rss_entry()
+                        .iter()
+                        .collect::<Vec<_>>();
+                    entrys.insert(0, entry.into());
+                    ui.global::<Store>()
+                        .set_rss_entry(ModelRc::new(VecModel::from(entrys)));
+                } else {
+                    let mut entrys = rss.entry.iter().collect::<Vec<_>>();
+                    entrys.insert(0, entry.into());
+                    rss.entry = ModelRc::new(VecModel::from(entrys));
+
+                    ui.global::<Store>()
+                        .get_rss_lists()
+                        .set_row_data(index, rss);
+                }
+
+                break;
+            }
+        }
+        Err(e) => {
+            warn!("{:?}", e);
+        }
+    };
 }
 
 pub fn init(ui: &AppWindow) {

@@ -64,6 +64,7 @@ export component RssDialog inherits CDialog {
 
                 line-edit-url := LineEdit {
                     placeholder-text: Store.translator.rss-dialog-url-placeholder;
+                    enabled: line-edit-name.enabled;
                 }
             }
 

@@ -31,6 +31,7 @@ pub fn tr(text: &str) -> String {
     items.insert("隐藏程序失败！", "Hide Window Failed!");
     items.insert("清除缓存失败！", "Clean Cache Failed!");
     items.insert("清除缓存成功！", "Clean Cache Success!");
+    items.insert("不允许刷新！", "Not Allow Flushing!");
     items.insert("正在重试...", "retrying...");
 
     if let Some(txt) = items.get(text) {

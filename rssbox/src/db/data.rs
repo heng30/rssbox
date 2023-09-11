@@ -11,8 +11,9 @@ pub struct RssConfig {
     pub update_time: String,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Default, Debug, Clone)]
 pub struct RssEntry {
+    pub uuid: String,
     pub url: String,
     pub title: String,
     pub pub_date: String,
@@ -49,10 +50,24 @@ impl From<&UIRssConfig> for RssConfig {
 impl From<&UIRssEntry> for RssEntry {
     fn from(entry: &UIRssEntry) -> Self {
         RssEntry {
+            uuid: entry.uuid.clone().into(),
             url: entry.url.clone().into(),
             title: entry.title.clone().into(),
             tags: entry.tags.clone().into(),
             pub_date: entry.pub_date.clone().into(),
+            is_read: entry.is_read,
+        }
+    }
+}
+
+impl From<RssEntry> for UIRssEntry {
+    fn from(entry: RssEntry) -> Self {
+        UIRssEntry {
+            uuid: entry.uuid.into(),
+            url: entry.url.into(),
+            pub_date: entry.pub_date.into(),
+            title: entry.title.into(),
+            tags: entry.tags.into(),
             is_read: entry.is_read,
         }
     }
