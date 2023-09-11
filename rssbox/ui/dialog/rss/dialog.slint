@@ -10,7 +10,7 @@ export component RssDialog inherits CDialog {
     visible: Store.rss-dialog-setting.show;
     title: Store.rss-dialog-setting.handle-type == "rss-add" ? Store.translator.rss-dialog-title-new : Store.translator.rss-dialog-title-edit;
 
-    width: 600px;
+    width: 800px;
 
     property<length> text-width: Theme.default-label-width;
     in-out property<int> icon-index: 0;
@@ -19,6 +19,7 @@ export component RssDialog inherits CDialog {
 
     public function set(config: RssConfig) {
         line-edit-name.text = Store.rss-name(config.uuid, config.name);
+        line-edit-url.text = config.url;
         use-proxy-checkbox.checked = config.use-proxy;
         root.icon-index = config.icon-index;
 
@@ -56,6 +57,18 @@ export component RssDialog inherits CDialog {
             }
 
             HorizontalLayout {
+                txt-url := Label {
+                    width: root.text-width;
+                    text: Store.translator.rss-dialog-url;
+                }
+
+                line-edit-url := LineEdit {
+                    placeholder-text: Store.translator.rss-dialog-url-placeholder;
+                }
+            }
+
+
+            HorizontalLayout {
                 HorizontalLayout {
                     use-proxy-checkbox := CheckBox {
                         text: self.checked ? Store.translator.rss-dialog-used-proxy : Store.translator.rss-dialog-unused-proxy;
@@ -69,12 +82,14 @@ export component RssDialog inherits CDialog {
         if (Store.rss-dialog-setting.handle-type == "rss-add") {
             Logic.new-rss({
                 name: line-edit-name.text,
+                url: line-edit-url.text,
                 use-proxy: use-proxy-checkbox.checked,
                 icon_index: root.icon-index,
             });
         } else if (Store.rss-dialog-setting.handle-type == "rss-edit") {
             Logic.save-rss(Store.current-rss-uuid, {
                 name: line-edit-name.text,
+                url: line-edit-url.text,
                 use-proxy: use-proxy-checkbox.checked,
                 icon_index: root.icon-index,
             });

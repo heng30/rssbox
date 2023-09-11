@@ -13,6 +13,7 @@ export struct RssEntry {
 export struct RssList {
     uuid: string,
     name: string,
+    url: string,
     use-proxy: bool,
     icon-index: int,
 
@@ -39,6 +40,7 @@ export struct RssDialogSetting {
 export struct RssConfig {
     uuid: string,
     name: string,
+    url: string,
     use-proxy: bool,
     icon-index: int,
 }
@@ -108,15 +110,17 @@ export global Store  {
     in-out property<string> current-rss-uuid: rss-lists[0].uuid;
     in-out property<[RssList]> rss-lists: [
         {
-            name: translator.rss-unread,
             uuid: "unread-uuid",
+            name: translator.rss-unread,
+            url: "https://www.zhihu.com/rss",
             is-mark: true,
             use_proxy: false,
             icon-index: 0,
         },
         {
-            name: translator.rss-favorite,
             uuid: "favorite-uuid",
+            name: translator.rss-favorite,
+            url: "https://www.zhihu.com/rss",
             is-mark: true,
             use_proxy: false,
             icon-index: 0,

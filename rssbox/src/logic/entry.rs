@@ -4,10 +4,36 @@ use crate::rss;
 use crate::slint_generatedAppWindow::{AppWindow, Logic, RssEntry as UIRssEntry, Store};
 use crate::util::translator::tr;
 use log::warn;
-use slint::{ComponentHandle, Model, ModelExt, ModelRc, SharedString, VecModel};
+use slint::{ComponentHandle, Model, ModelRc, SharedString, VecModel};
+
+pub fn get_from_db(suuid: &str) -> Vec<UIRssEntry> {
+    match db::entry::select_all(suuid) {
+        Ok(items) => items
+            .iter()
+            .rev()
+            .map(|item| match serde_json::from_str::<RssEntry>(&item.1) {
+                Ok(entry) => UIRssEntry {
+                    uuid: item.0.as_str().into(),
+                    url: entry.url.into(),
+                    pub_date: entry.pub_date.into(),
+                    title: entry.title.into(),
+                    tags: entry.tags.into(),
+                    is_read: entry.is_read,
+                },
+                Err(e) => {
+                    warn!("{:?}", e);
+                    UIRssEntry::default()
+                }
+            })
+            .collect::<Vec<_>>(),
+        Err(e) => {
+            warn!("{:?}", e);
+            vec![]
+        }
+    }
+}
 
 pub fn init(ui: &AppWindow) {
-    let ui_handle = ui.as_weak();
     ui.global::<Logic>().on_parse_tags(move |tags| {
         let items: Vec<_> = tags
             .split(',')
@@ -17,16 +43,8 @@ pub fn init(ui: &AppWindow) {
         ModelRc::new(VecModel::from(items))
     });
 
-    let ui_handle = ui.as_weak();
-    ui.global::<Logic>().on_set_read_all_entry(move || {
-        let ui = ui_handle.unwrap();
-        let suuid = ui.global::<Store>().get_current_rss_uuid();
-
-        for (index, mut entry) in ui.global::<Store>().get_rss_entry().iter().enumerate() {
-            if entry.is_read {
-                continue;
-            }
-
+    let set_read =
+        |ui: &AppWindow, suuid: &slint::SharedString, index: usize, mut entry: UIRssEntry| {
             entry.is_read = true;
 
             match serde_json::to_string(&RssEntry::from(&entry)) {
@@ -49,41 +67,30 @@ pub fn init(ui: &AppWindow) {
             ui.global::<Store>()
                 .get_rss_entry()
                 .set_row_data(index, entry);
+        };
+
+    let ui_handle = ui.as_weak();
+    ui.global::<Logic>().on_set_read_all_entry(move |suuid| {
+        let ui = ui_handle.unwrap();
+
+        for (index, entry) in ui.global::<Store>().get_rss_entry().iter().enumerate() {
+            if entry.is_read {
+                continue;
+            }
+            set_read(&ui, &suuid, index, entry);
         }
     });
 
     let ui_handle = ui.as_weak();
-    ui.global::<Logic>().on_set_read_entry(move |uuid| {
+    ui.global::<Logic>().on_set_read_entry(move |suuid, uuid| {
         let ui = ui_handle.unwrap();
-        let suuid = ui.global::<Store>().get_current_rss_uuid();
 
-        for (index, mut entry) in ui.global::<Store>().get_rss_entry().iter().enumerate() {
+        for (index, entry) in ui.global::<Store>().get_rss_entry().iter().enumerate() {
             if entry.is_read || entry.uuid != uuid {
                 continue;
             }
 
-            entry.is_read = true;
-
-            match serde_json::to_string(&RssEntry::from(&entry)) {
-                Ok(data) => {
-                    if let Err(e) = db::entry::update(suuid.as_str(), entry.uuid.as_str(), &data) {
-                        ui.global::<Logic>().invoke_show_message(
-                            slint::format!("{}{}: {:?}", tr("保存失败！"), tr("原因"), e),
-                            "warning".into(),
-                        );
-                    }
-                }
-                Err(e) => {
-                    ui.global::<Logic>().invoke_show_message(
-                        slint::format!("{}{}: {:?}", tr("保存失败！"), tr("原因"), e),
-                        "warning".into(),
-                    );
-                }
-            };
-
-            ui.global::<Store>()
-                .get_rss_entry()
-                .set_row_data(index, entry);
+            set_read(&ui, &suuid, index, entry);
             return;
         }
     });
@@ -94,18 +101,20 @@ pub fn init(ui: &AppWindow) {
 
         ui.global::<Store>().set_rss_entry(ModelRc::default());
 
-        if let Err(e) = db::entry::drop_table(suuid.as_str()) {
+        if let Err(e) = db::entry::delete_all(suuid.as_str()) {
             ui.global::<Logic>().invoke_show_message(
-                slint::format!("{}{}: {:?}", tr("出错！"), tr("原因"), e),
+                slint::format!("{}{}: {:?}", tr("清空失败！"), tr("原因"), e),
                 "warning".into(),
             );
+        } else {
+            ui.global::<Logic>()
+                .invoke_show_message(tr("清空成功！").into(), "success".into());
         }
     });
 
     let ui_handle = ui.as_weak();
-    ui.global::<Logic>().on_remove_entry(move |uuid| {
+    ui.global::<Logic>().on_remove_entry(move |suuid, uuid| {
         let ui = ui_handle.unwrap();
-        let suuid = ui.global::<Store>().get_current_rss_uuid();
 
         for (index, entry) in ui.global::<Store>().get_rss_entry().iter().enumerate() {
             if entry.uuid != uuid {
@@ -117,6 +126,9 @@ pub fn init(ui: &AppWindow) {
                     slint::format!("{}{}: {:?}", tr("删除失败！"), tr("原因"), e),
                     "warning".into(),
                 );
+            } else {
+                ui.global::<Logic>()
+                    .invoke_show_message(tr("删除成功！").into(), "success".into());
             }
 
             ui.global::<Store>()
@@ -131,14 +143,16 @@ pub fn init(ui: &AppWindow) {
     });
 
     let ui_handle = ui.as_weak();
-    ui.global::<Logic>().on_favorite_entry(move |uuid| {
+    ui.global::<Logic>().on_favorite_entry(move |_suuid, uuid| {
         let ui = ui_handle.unwrap();
-        let suuid = ui.global::<Store>().get_current_rss_uuid();
 
         for entry in ui.global::<Store>().get_rss_entry().iter() {
             if entry.uuid != uuid {
                 continue;
             }
+
+            // TODO: set tag
+            // entry.tags = rss
 
             match serde_json::to_string(&RssEntry::from(&entry)) {
                 Ok(data) => {
@@ -180,6 +194,4 @@ pub fn init(ui: &AppWindow) {
             return;
         }
     });
-
-    // callback sync-rss();
 }

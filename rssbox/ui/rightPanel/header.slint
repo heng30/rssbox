@@ -52,7 +52,7 @@ export component Header inherits Rectangle {
                         icon-width: self.width * 0.6;
                         tip-text: Store.translator.tip-sync-rss;
                         clicked => {
-                            Logic.sync-rss();
+                            Logic.sync-rss(Store.current-rss-uuid);
                         }
                     }
 
@@ -62,7 +62,7 @@ export component Header inherits Rectangle {
                         tip-pos: "left";
                         tip-text: Store.translator.tip-set-all-read;
                         clicked => {
-                            Logic.set-read-all-entry();
+                            Logic.set-read-all-entry(Store.current-rss-uuid);
                         }
                     }
 

@@ -1,10 +1,14 @@
+use super::data::SyncItem;
+use super::entry;
 use crate::db;
 use crate::db::data::RssConfig;
 use crate::slint_generatedAppWindow::{AppWindow, Logic, RssConfig as UIRssConfig, RssList, Store};
 use crate::util::translator::tr;
+use crate::CResult;
 use log::warn;
-use slint::{ComponentHandle, Model, ModelExt, ModelRc, SortModel, VecModel};
+use slint::{ComponentHandle, Model, ModelExt, ModelRc, VecModel, Weak};
 use std::cmp::Ordering;
+use tokio::task::spawn;
 use uuid::Uuid;
 
 pub const UNREAD_UUID: &str = "unread-uuid";
@@ -53,10 +57,14 @@ fn init_rss(ui: &AppWindow) {
                 let config = item.1;
 
                 let mut rss = RssList {
+                    entry: ModelRc::new(VecModel::from(entry::get_from_db(&item.0.as_str()))),
                     uuid: item.0.into(),
-                    entry: ModelRc::new(VecModel::default()),
                     ..Default::default()
                 };
+
+                if rss.uuid == UNREAD_UUID {
+                    ui.global::<Store>().set_rss_entry(rss.entry.clone());
+                }
 
                 match serde_json::from_str::<RssConfig>(&config) {
                     Ok(conf) => {
@@ -64,6 +72,7 @@ fn init_rss(ui: &AppWindow) {
                         rss.use_proxy = conf.use_proxy;
                         rss.icon_index = conf.icon_index;
                         rss.name = conf.name.into();
+                        rss.url = conf.url.into();
                         rss.update_time = conf.update_time.into();
                     }
                     Err(e) => {
@@ -118,6 +127,7 @@ pub fn init(ui: &AppWindow) {
                 ui.invoke_rss_dialog_set(UIRssConfig {
                     uuid: uuid,
                     name: rss.name,
+                    url: rss.url,
                     use_proxy: rss.use_proxy,
                     icon_index: rss.icon_index,
                 });
@@ -143,7 +153,15 @@ pub fn init(ui: &AppWindow) {
             Ok(config) => {
                 if let Err(e) = db::rss::insert(rss.uuid.as_str(), &config) {
                     ui.global::<Logic>().invoke_show_message(
-                        slint::format!("{}{}: {:?}", tr("保存失败！"), tr("原因"), e),
+                        slint::format!("{}{}: {:?}", tr("新建失败！"), tr("原因"), e),
+                        "warning".into(),
+                    );
+                    return;
+                }
+
+                if let Err(e) = db::entry::new(rss.uuid.as_str()) {
+                    ui.global::<Logic>().invoke_show_message(
+                        slint::format!("{}{}: {:?}", tr("新建失败！"), tr("原因"), e),
                         "warning".into(),
                     );
                     return;
@@ -151,7 +169,7 @@ pub fn init(ui: &AppWindow) {
             }
             Err(e) => {
                 ui.global::<Logic>().invoke_show_message(
-                    slint::format!("{}{}: {:?}", tr("保存失败！"), tr("原因"), e),
+                    slint::format!("{}{}: {:?}", tr("新建失败！"), tr("原因"), e),
                     "warning".into(),
                 );
                 return;
@@ -179,6 +197,7 @@ pub fn init(ui: &AppWindow) {
             }
 
             rss.name = config.name;
+            rss.url = config.url;
             rss.use_proxy = config.use_proxy;
             rss.icon_index = config.icon_index;
 
@@ -248,6 +267,13 @@ pub fn init(ui: &AppWindow) {
                 }
             }
 
+            if let Err(e) = db::entry::drop_table(rss.uuid.as_str()) {
+                ui.global::<Logic>().invoke_show_message(
+                    slint::format!("{}{}: {:?}", tr("删除失败！"), tr("原因"), e),
+                    "warning".into(),
+                );
+            }
+
             // TODO: remove rss-list-items
 
             return;
@@ -314,4 +340,40 @@ pub fn init(ui: &AppWindow) {
                 }
             }
         });
+
+    let ui_handle = ui.as_weak();
+    ui.global::<Logic>().on_sync_rss(move |suuid| {
+        if suuid == FAVORITE_UUID {
+            return;
+        }
+
+        let ui = ui_handle.unwrap();
+        let mut items: Vec<SyncItem> = vec![];
+
+        for rss in ui.global::<Store>().get_rss_lists().iter() {
+            if suuid == UNREAD_UUID && rss.uuid != UNREAD_UUID {
+                items.push(rss.into());
+            } else if suuid == rss.uuid {
+                items.push(rss.into());
+                break;
+            }
+        }
+
+        let ui_handle = ui.as_weak();
+        spawn(async move {
+            if let Err(e) = sync_rss(ui_handle, items).await {
+                warn!("{:?}", e);
+            }
+        });
+    });
+}
+
+pub async fn sync_rss(ui: Weak<AppWindow>, items: Vec<SyncItem>) -> CResult {
+    // TODO: fetch data
+    if let Err(e) = slint::invoke_from_event_loop(move || {
+        todo!();
+    }) {
+        warn!("{:?}", e);
+    }
+    Ok(())
 }

@@ -12,7 +12,8 @@ pub fn init(ui: &AppWindow) {
             } else if handle_type.as_str() == "rss-all-entry" {
                 ui.global::<Logic>().invoke_remove_all_entry(handle_uuid);
             } else if handle_type.as_str() == "rss-entry" {
-                ui.global::<Logic>().invoke_remove_entry(handle_uuid);
+                let suuid = ui.global::<Store>().get_current_rss_uuid();
+                ui.global::<Logic>().invoke_remove_entry(suuid, handle_uuid);
             // } else if handle_type.as_str() == "session-archive-item" {
             //     ui.global::<Logic>().invoke_delete_session_archive(
             //         ui.global::<Store>().get_current_session_uuid(),

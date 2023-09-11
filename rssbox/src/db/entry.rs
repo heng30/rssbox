@@ -44,6 +44,15 @@ pub fn delete(suuid: &str, uuid: &str) -> Result<()> {
     Ok(())
 }
 
+pub fn delete_all(suuid: &str) -> Result<()> {
+    let conn = connection()?;
+    conn.execute(
+        &format!("DELETE FROM {}", table_name(suuid)),
+        [],
+    )?;
+    Ok(())
+}
+
 pub fn insert(suuid: &str, uuid: &str, data: &str) -> Result<()> {
     let conn = connection()?;
 
@@ -68,6 +77,7 @@ pub fn update(suuid: &str, uuid: &str, data: &str) -> Result<()> {
     Ok(())
 }
 
+#[allow(dead_code)]
 pub fn select(suuid: &str, uuid: &str) -> Result<Option<String>> {
     let conn = connection()?;
 
@@ -114,6 +124,7 @@ pub fn is_exist(suuid: &str, uuid: &str) -> Result<bool> {
     Ok(cnt == 1)
 }
 
+#[allow(dead_code)]
 pub fn is_table_exist(suuid: &str) -> Result<bool> {
     let conn = connection()?;
 

@@ -4,6 +4,7 @@ use std::fmt::Debug;
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct RssConfig {
     pub name: String,
+    pub url: String,
     pub icon_index: i32,
     pub use_proxy: bool,
     pub is_mark: bool,
@@ -23,6 +24,7 @@ impl From<&RssList> for RssConfig {
     fn from(conf: &RssList) -> Self {
         RssConfig {
             name: conf.name.clone().into(),
+            url: conf.url.clone().into(),
             icon_index: conf.icon_index,
             use_proxy: conf.use_proxy,
             is_mark: conf.is_mark,
@@ -35,6 +37,7 @@ impl From<&UIRssConfig> for RssConfig {
     fn from(conf: &UIRssConfig) -> Self {
         RssConfig {
             name: conf.name.clone().into(),
+            url: conf.url.clone().into(),
             icon_index: conf.icon_index,
             use_proxy: conf.use_proxy,
             is_mark: false,

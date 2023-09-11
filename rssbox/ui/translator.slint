@@ -37,6 +37,8 @@ export struct Translation {
     rss-dialog-title-edit: string,
     rss-dialog-name: string,
     rss-dialog-name-placeholder: string,
+    rss-dialog-url: string,
+    rss-dialog-url-placeholder: string,
     rss-dialog-unused-proxy: string,
     rss-dialog-used-proxy: string,
 
@@ -66,6 +68,8 @@ export struct Translation {
     tip-favorite: string,
     tip-mark-read: string,
     tip-set-all-read: string,
+    tip-is-read: string,
+    tip-is-not-read: string,
 }
 
 export global Translator {
@@ -107,6 +111,8 @@ export global Translator {
             rss-dialog-title-edit: is-cn ? "编    辑" : "Edit",
             rss-dialog-name: is-cn ? "名        称:" : "Name:",
             rss-dialog-name-placeholder: is-cn ? "请输入RSS名称" : "Please Input RSS Name",
+            rss-dialog-url: is-cn ? "RSS 地址:" : "RSS Address:",
+            rss-dialog-url-placeholder: is-cn ? "请输入RSS地址" : "Please Input RSS Address",
             rss-dialog-unused-proxy: is-cn ? "未启用代理" : "Disabled Proxy",
             rss-dialog-used-proxy: is-cn ? "已启用代理" : "Enabled Proxy",
 
@@ -136,6 +142,8 @@ export global Translator {
             tip-favorite: is-cn ? "收藏" : "Favorite",
             tip-mark-read: is-cn ? "标记为已读" : "Mark Read",
             tip-set-all-read: is-cn ? "全部标记为已读" : "Set All Entry Read",
+            tip-is-read: is-cn ? "已读" : "Read",
+            tip-is-not-read: is-cn ? "已读" : "Read",
         };
     }
 }

@@ -4,6 +4,7 @@ import { Logic } from "../../logic.slint";
 import { CenterLayout } from "../../base/center-layout.slint";
 import { IconBtn } from "../../base/icon-btn.slint";
 import { Tag } from "../../base/tag.slint";
+import { Tip } from "../../base/tip.slint";
 
 export component ToolBar inherits Rectangle {
     in-out property<bool> is-read: false;
@@ -21,6 +22,16 @@ export component ToolBar inherits Rectangle {
                     height: self.width;
                     border-radius: self.width/2;
                     background: is-read ? Theme.success-color : Theme.danger-color;
+
+                    Tip {
+                        pwidth: parent.width;
+                        pheight: parent.height;
+                        is-show: is-read-touch.has-hover;
+                        text: is-read ? Store.translator.tip-is-read : Store.translator.tip-is-not-read;
+                        pos: "right";
+                    }
+
+                    is-read-touch := TouchArea {}
                 }
             }
         }
@@ -36,7 +47,7 @@ export component ToolBar inherits Rectangle {
                     tip-text: Store.translator.tip-mark-read;
                     tip-pos: "left";
                     clicked => {
-                        Logic.set-read-entry(root.uuid);
+                        Logic.set-read-entry(Store.current-rss-uuid, root.uuid);
                     }
                 }
             }
@@ -47,7 +58,7 @@ export component ToolBar inherits Rectangle {
                     tip-text: Store.translator.tip-favorite;
                     tip-pos: "left";
                     clicked => {
-                        Logic.favorite-entry(root.uuid);
+                        Logic.favorite-entry(Store.current-rss-uuid, root.uuid);
                     }
                 }
             }

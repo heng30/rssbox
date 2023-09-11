@@ -8,6 +8,7 @@ export global Logic {
     callback delete-rss(string);
     callback switch-rss(string, string);
     callback toggle-rss-mark(int, string);
+    callback sync-rss(string);
 
     callback set-rss-dialog(string);
     callback reset-rss-dialog();
@@ -15,12 +16,11 @@ export global Logic {
     pure callback parse-tags(string) -> [string];
     parse-tags(tags) => { return [tags]; }
 
-    callback sync-rss();
-    callback favorite-entry(string);
-    callback remove-entry(string);
+    callback favorite-entry(string, string);
+    callback remove-entry(string, string);
     callback remove-all-entry(string);
-    callback set-read-entry(string);
-    callback set-read-all-entry();
+    callback set-read-entry(string, string);
+    callback set-read-all-entry(string);
 
     callback show-message(string, string);
     callback copy-to-clipboard(string);
