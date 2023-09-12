@@ -8,7 +8,6 @@ fn connection() -> Result<Connection> {
 }
 
 pub fn init() -> Result<()> {
-    new(rss::UNREAD_UUID)?;
     new(rss::FAVORITE_UUID)?;
     Ok(())
 }

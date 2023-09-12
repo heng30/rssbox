@@ -5,6 +5,7 @@ import { Btn } from "../../base/btn.slint";
 import { Divider } from "../../base/divider.slint";
 import { TabBtn } from "../../base/tab-btn.slint";
 import { UI } from "./ui.slint";
+import { RSS } from "./rss.slint";
 import { Proxy } from "./proxy.slint";
 import { CDialog } from "../../base/cdialog.slint";
 
@@ -39,6 +40,15 @@ export component SettingDialog inherits CDialog {
                 }
 
                 TabBtn {
+                    text: Store.translator.setting-dialog-rss;
+                    icon: @image-url("../../images/rss.svg");
+                    checked: current-checked-item == "rss";
+                    clicked => {
+                        current-checked-item = "rss";
+                    }
+                }
+
+                TabBtn {
                     text: Store.translator.setting-dialog-proxy;
                     icon: @image-url("../../images/proxy.svg");
                     checked: current-checked-item == "proxy";
@@ -64,6 +74,14 @@ export component SettingDialog inherits CDialog {
                     win-height: Theme.default-height / 1px;
                 }
 
+                rss-tab := RSS {
+                    visible: current-checked-item == "rss";
+                    sync-interval: Store.setting-dialog-config.rss.sync-interval;
+                    sync-timeout: Store.setting-dialog-config.rss.sync-timeout;
+                    browser: Store.setting-dialog-config.rss.browser;
+
+                }
+
                 proxy-tab := Proxy {
                     visible: current-checked-item == "proxy";
                     proxy-url: Store.setting-dialog-config.proxy.url;
@@ -82,6 +100,15 @@ export component SettingDialog inherits CDialog {
         ui-tab.win-height = Theme.default-height / 1px;
         ui-tab.set-language(Store.setting-dialog-config.ui.language);
 
+        proxy-tab.proxy-url = Store.setting-dialog-config.proxy.url;
+        proxy-tab.proxy-port = Store.setting-dialog-config.proxy.port;
+
+
+        rss-tab.sync-interval = Store.setting-dialog-config.rss.sync-interval;
+        rss-tab.sync-timeout = Store.setting-dialog-config.rss.sync-timeout;
+        rss-tab.browser = Store.setting-dialog-config.rss.browser;
+
+
         Store.setting-dialog-config.show = false;
         root.close();
     }
@@ -94,6 +121,11 @@ export component SettingDialog inherits CDialog {
                 win-width: ui-tab.win-width,
                 win-height: ui-tab.win-height,
                 language: ui-tab.language
+            },
+            rss: {
+                sync-interval: rss-tab.sync-interval,
+                sync-timeout: rss-tab.sync-timeout,
+                browser: rss-tab.browser
             },
             proxy: {
                 url: proxy-tab.proxy-url,

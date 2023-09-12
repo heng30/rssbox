@@ -23,6 +23,12 @@ export struct Translation {
     setting-dialog-ui-win-H: string,
     setting-dialog-ui-language: string,
 
+    setting-dialog-rss: string,
+    setting-dialog-rss-sync-interval: string,
+    setting-dialog-rss-sync-timeout: string,
+    setting-dialog-rss-sync-browser: string,
+    setting-dialog-rss-sync-browser-placeholder: string,
+
     setting-dialog-proxy: string,
     setting-dialog-proxy-type: string,
     setting-dialog-proxy-url: string,
@@ -48,6 +54,7 @@ export struct Translation {
     no-message: string,
 
     tip-copy: string,
+    tip-copy-url: string,
     tip-delete: string,
     tip-delete-all: string,
     tip-send: string,
@@ -98,6 +105,13 @@ export global Translator {
             setting-dialog-ui-win-W: is-cn ? "宽" : "Width",
             setting-dialog-ui-win-H: is-cn ?  "高" : "Height",
             setting-dialog-ui-language: is-cn ? "选择语言:" : "Language:",
+
+            setting-dialog-rss: is-cn ? "RSS" : "RSS",
+            setting-dialog-rss-sync-interval: is-cn ? "更新间隔(min):" : "Sync Interval(min):",
+            setting-dialog-rss-sync-timeout: is-cn ? "更新超时(sec):" : "Sync Timeout(sec):",
+            setting-dialog-rss-sync-browser: is-cn ? "浏览器:" : "Browser:",
+            setting-dialog-rss-sync-browser-placeholder: is-cn ? "请输入浏览器": "Please Set Browser",
+
             setting-dialog-proxy: is-cn ? "代理" : "Proxy",
             setting-dialog-proxy-type: is-cn ? "代理类型:" : "Type:",
             setting-dialog-proxy-url-placeholder: is-cn ? "请输入URL/IP:" : "URL/IP",
@@ -122,6 +136,7 @@ export global Translator {
             no-message: is-cn ? "没有信息" : "No Message",
 
             tip-copy: is-cn ? "复制" : "Copy",
+            tip-copy-url: is-cn ? "复制网址" : "Copy URL",
             tip-send: is-cn ? "发送" : "Send",
             tip-clear: is-cn ? "清除" : "Clear",
             tip-stop: is-cn ? "停止" : "Stop",

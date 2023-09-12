@@ -1,14 +1,17 @@
 use super::data::SyncItem;
 use super::entry;
+use crate::config;
 use crate::db;
 use crate::db::data::{RssConfig, RssEntry};
-use crate::slint_generatedAppWindow::{AppWindow, Logic, RssConfig as UIRssConfig, RssList, Store};
+use crate::slint_generatedAppWindow::{
+    AppWindow, Logic, RssConfig as UIRssConfig, RssEntry as UIRssEntry, RssList, Store,
+};
 use crate::util::http as uhttp;
 use crate::util::translator::tr;
 use crate::CResult;
 use log::warn;
 use rss::Channel;
-use slint::{ComponentHandle, Model, ModelExt, ModelRc, VecModel, Weak};
+use slint::{ComponentHandle, Model, ModelRc, VecModel, Weak};
 use std::cmp::Ordering;
 use std::time::Duration;
 use tokio::task::spawn;
@@ -54,7 +57,8 @@ fn init_db(ui: &AppWindow) {
 fn init_rss(ui: &AppWindow) {
     match db::rss::select_all() {
         Ok(items) => {
-            let rsslists = VecModel::default();
+            let mut rsslists = vec![];
+            let mut unread_entrys = vec![];
 
             for item in items.into_iter() {
                 let config = item.1;
@@ -64,6 +68,15 @@ fn init_rss(ui: &AppWindow) {
                     uuid: item.0.into(),
                     ..Default::default()
                 };
+
+                let mut unread_count = 0;
+                for entry in rss.entry.iter() {
+                    if !entry.is_read {
+                        unread_count += 1;
+                        unread_entrys.push(entry);
+                    }
+                }
+                rss.unread_count = unread_count;
 
                 if rss.uuid == UNREAD_UUID {
                     ui.global::<Store>().set_rss_entry(rss.entry.clone());
@@ -86,7 +99,7 @@ fn init_rss(ui: &AppWindow) {
                 rsslists.push(rss);
             }
 
-            let rsslists = rsslists.sort_by(|a, b| -> Ordering {
+            rsslists.sort_by(|a, b| -> Ordering {
                 if a.uuid == UNREAD_UUID {
                     Ordering::Less
                 } else if b.uuid == UNREAD_UUID {
@@ -107,9 +120,14 @@ fn init_rss(ui: &AppWindow) {
             });
 
             ui.global::<Store>()
-                .set_rss_lists(ModelRc::new(VecModel::from(
-                    rsslists.iter().collect::<Vec<_>>(),
-                )));
+                .get_rss_entry()
+                .as_any()
+                .downcast_ref::<VecModel<UIRssEntry>>()
+                .expect("We know we set a VecModel earlier")
+                .set_vec(unread_entrys);
+
+            ui.global::<Store>()
+                .set_rss_lists(ModelRc::new(VecModel::from(rsslists)));
         }
         Err(e) => {
             warn!("{:?}", e);
@@ -151,6 +169,7 @@ pub fn init(ui: &AppWindow) {
 
         let mut rss: RssList = config.into();
         rss.uuid = Uuid::new_v4().to_string().into();
+        rss.entry = ModelRc::new(VecModel::default());
 
         match serde_json::to_string(&RssConfig::from(&rss)) {
             Ok(config) => {
@@ -377,10 +396,48 @@ pub fn init(ui: &AppWindow) {
     });
 }
 
-fn update_new_entry(ui: &AppWindow, suuid: String, entry: Vec<RssEntry>) {}
+fn update_new_entrys(ui: &AppWindow, suuid: String, entrys: Vec<RssEntry>) {
+    let mut unread_entrys = ModelRc::default();
+    for rss in ui.global::<Store>().get_rss_lists().iter() {
+        if rss.uuid == UNREAD_UUID {
+            unread_entrys = rss.entry.clone();
+        }
 
+        if rss.uuid != suuid {
+            continue;
+        }
+
+        for entry in entrys.into_iter() {
+            let mut found = false;
+            for item in rss.entry.iter() {
+                if item.url == entry.url {
+                    found = true;
+                    break;
+                }
+            }
+            if !found {
+                entry::update_new_entry(ui, &suuid, entry.clone());
+            }
+
+            found = false;
+            for item in unread_entrys.iter() {
+                if item.url == entry.url {
+                    found = true;
+                    break;
+                }
+            }
+            if !found {
+                entry::update_new_entry(ui, UNREAD_UUID, entry);
+            }
+        }
+        return;
+    }
+}
+
+// Be careful, It runs in another thread
 async fn fetch_entry(config: SyncItem) -> Result<Vec<RssEntry>, Box<dyn std::error::Error>> {
-    let request_timeout = 10;
+    let rss_config = config::rss();
+    let request_timeout = u64::min(rss_config.sync_timeout as u64, 10_u64);
 
     let client = uhttp::client(config.use_proxy)?;
     let content = client
@@ -395,10 +452,16 @@ async fn fetch_entry(config: SyncItem) -> Result<Vec<RssEntry>, Box<dyn std::err
     let mut entry = vec![];
     let ch = Channel::read_from(&content[..])?;
     for item in ch.items() {
+        let url = item.link().unwrap_or("").to_string();
+        let title = item.title().unwrap_or("").to_string();
+        if url.is_empty() || title.is_empty() {
+            continue;
+        }
+
         entry.push(RssEntry {
+            url,
+            title,
             uuid: Uuid::new_v4().to_string(),
-            url: item.link().unwrap_or("").to_string(),
-            title: item.title().unwrap_or("").to_string(),
             pub_date: item.pub_date().unwrap_or("").to_string(),
             ..Default::default()
         });
@@ -407,7 +470,7 @@ async fn fetch_entry(config: SyncItem) -> Result<Vec<RssEntry>, Box<dyn std::err
     Ok(entry)
 }
 
-// Be careful, It run in another thread
+// Be careful, It runs in another thread
 pub async fn sync_rss(ui: Weak<AppWindow>, items: Vec<SyncItem>) -> CResult {
     for item in items.into_iter() {
         let suuid = item.uuid.clone();
@@ -417,7 +480,7 @@ pub async fn sync_rss(ui: Weak<AppWindow>, items: Vec<SyncItem>) -> CResult {
                 let ui = ui.clone();
                 if let Err(e) = slint::invoke_from_event_loop(move || {
                     let ui = ui.unwrap();
-                    update_new_entry(&ui, suuid, entry);
+                    update_new_entrys(&ui, suuid, entry);
                 }) {
                     warn!("{:?}", e);
                 }

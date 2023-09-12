@@ -1,7 +1,7 @@
 use crate::config;
 use crate::slint_generatedAppWindow::{AppWindow, Logic, Store};
-use crate::util::{self, translator::tr};
-use slint::{ComponentHandle, VecModel, Weak};
+use crate::util::translator::tr;
+use slint::{ComponentHandle, Weak};
 
 pub fn init(ui: &AppWindow) {
     init_setting_dialog(ui.as_weak());
@@ -38,6 +38,10 @@ pub fn init(ui: &AppWindow) {
         config.ui.font_family = setting_config.ui.font_family.to_string();
         config.ui.language = setting_config.ui.language.to_string();
 
+        config.rss.sync_interval = setting_config.rss.sync_interval as u32;
+        config.rss.sync_timeout = setting_config.rss.sync_timeout as u32;
+        config.rss.browser = setting_config.rss.browser.to_string();
+
         config.socks5.url = setting_config.proxy.url.to_string();
         config.socks5.port = setting_config
             .proxy
@@ -65,6 +69,7 @@ pub fn init(ui: &AppWindow) {
 fn init_setting_dialog(ui: Weak<AppWindow>) {
     let ui = ui.unwrap();
     let ui_config = config::ui();
+    let rss_config = config::rss();
     let socks5_config = config::socks5();
 
     let mut setting_dialog = ui.global::<Store>().get_setting_dialog_config();
@@ -73,6 +78,10 @@ fn init_setting_dialog(ui: Weak<AppWindow>) {
     setting_dialog.ui.win_width = slint::format!("{}", ui_config.win_width);
     setting_dialog.ui.win_height = slint::format!("{}", ui_config.win_height);
     setting_dialog.ui.language = ui_config.language.into();
+
+    setting_dialog.rss.sync_interval = rss_config.sync_interval as i32;
+    setting_dialog.rss.sync_timeout = rss_config.sync_timeout as i32;
+    setting_dialog.rss.browser = rss_config.browser.into();
 
     setting_dialog.proxy.url = socks5_config.url.into();
     setting_dialog.proxy.port = slint::format!("{}", socks5_config.port);

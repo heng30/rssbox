@@ -18,7 +18,7 @@ export global Theme  {
     in-out property<length> default-width: Store.setting-dialog-config.ui.win-width.to-float() * 1px;
     in-out property<length> default-height: Store.setting-dialog-config.ui.win-height.to-float() * 1px;
     in-out property<length> default-font-size: Store.setting-dialog-config.ui.font-size.to-float() * 1px;
-    in-out property<length> enlarge-font-size: default-font-size + 1px;
+    in-out property<length> enlarge-font-size: default-font-size + 2px;
     in-out property<length> body-font-size: default-font-size + 2px;
     in-out property<length> code-font-size: default-font-size + 2px;
     in-out property<length> title4-font-size: default-font-size + 2px;
@@ -54,6 +54,8 @@ export global Theme  {
     out property<color> primary-text-color: #202123;
     out property<color> regular-text-color: primary-text-color.brighter(50%);
     out property<color> secondary-text-color: primary-text-color.brighter(100%);
+    out property<color> link-text-color: #005FB8.darker(10%);
+    out property<color> have-read-text-color: #606060;
     out property<color> placeholder-text-color: #A8ABB2;
     out property<color> disabled-text-color: #C0C4CC;
 

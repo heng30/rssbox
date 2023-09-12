@@ -17,7 +17,7 @@ export struct RssList {
     use-proxy: bool,
     icon-index: int,
 
-    unread_count: int,
+    unread-count: int,
     update-time: string,
     is-mark: bool,
     entry: [RssEntry],
@@ -63,6 +63,12 @@ export struct SettingUI {
     language: string,
 }
 
+export struct SettingRSS {
+    sync-interval: int,
+    sync-timeout: int,
+    browser: string,
+}
+
 export struct SettingProxy {
     url: string,
     port: string,
@@ -71,6 +77,7 @@ export struct SettingProxy {
 export struct SettingDialogConfig {
     show: bool,
     ui: SettingUI,
+    rss: SettingRSS,
     proxy: SettingProxy,
 }
 
@@ -141,6 +148,11 @@ export global Store  {
             win-width: "1200",
             win-height: "1000",
             language: "cn",
+        },
+        rss: {
+            sync-interval: 60,
+            sync-timeout: 15,
+            browser: "brave"
         },
     };
 

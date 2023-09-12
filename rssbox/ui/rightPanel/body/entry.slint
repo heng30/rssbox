@@ -9,6 +9,8 @@ export component Entry inherits Rectangle {
     in-out property pub-date-text <=> pub-date-txt.text;
     in-out property<string> tag-text;
     in-out property<bool> is-read: false;
+    in-out property<string> uuid;
+    in-out property<string> url;
 
     background: Theme.light-fill-color;
     height: vbox.preferred-height;
@@ -23,15 +25,19 @@ export component Entry inherits Rectangle {
 
     vbox := VerticalLayout {
         padding: Theme.padding * 2;
-        spacing: Theme.spacing * 4;
+        spacing: Theme.spacing * 2;
 
         txt := Text {
             wrap: word-wrap;
-            font-size: Theme.default-font-size + 4px;
-            color: Theme.primary-text-color;
+            font-size: Theme.enlarge-font-size;
+            color: touch-2.has-hover ? Theme.link-text-color :  (root.is-read && Store.current-rss-uuid != "favorite-uuid" ? Theme.have-read-text-color : Theme.primary-text-color);
 
             touch-2 := TouchArea {
                 mouse-cursor: self.has-hover ? pointer : default;
+                clicked => {
+                    Logic.set-read-entry(Store.current-rss-uuid, root.uuid);
+                    Logic.open-url(root.url);
+                }
             }
         }
 

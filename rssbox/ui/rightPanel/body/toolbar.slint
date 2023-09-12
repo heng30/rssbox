@@ -9,36 +9,38 @@ import { Tip } from "../../base/tip.slint";
 export component ToolBar inherits Rectangle {
     in-out property<bool> is-read: false;
     in-out property<string> uuid;
+    in-out property<string> url;
 
     HorizontalLayout {
         padding-bottom: Theme.padding;
-        alignment: space-between;
-
-        HorizontalLayout {
-            padding-left: Theme.padding;
-            CenterLayout {
-                Rectangle {
-                    width: Theme.icon-size * 0.6;
-                    height: self.width;
-                    border-radius: self.width/2;
-                    background: is-read ? Theme.success-color : Theme.danger-color;
-
-                    Tip {
-                        pwidth: parent.width;
-                        pheight: parent.height;
-                        is-show: is-read-touch.has-hover;
-                        text: is-read ? Store.translator.tip-is-read : Store.translator.tip-is-not-read;
-                        pos: "right";
-                    }
-
-                    is-read-touch := TouchArea {}
-                }
-            }
-        }
+        alignment: end;
 
         HorizontalLayout {
             padding-right: Theme.padding;
             spacing: Theme.spacing * 2;
+
+            CenterLayout {
+                IconBtn {
+                    icon: @image-url("../../images/star-light.svg");
+                    tip-text: Store.translator.tip-favorite;
+                    tip-pos: "left";
+                    clicked => {
+                        Logic.favorite-entry(Store.current-rss-uuid, root.uuid);
+                    }
+                }
+            }
+
+            CenterLayout {
+                IconBtn {
+                    icon: @image-url("../../images/copy.svg");
+                    icon-width: self.width * 0.7;
+                    tip-text: Store.translator.tip-copy-url;
+                    tip-pos: "left";
+                    clicked => {
+                        Logic.copy-to-clipboard(root.url);
+                    }
+                }
+            }
 
             CenterLayout {
                 IconBtn {
@@ -48,17 +50,6 @@ export component ToolBar inherits Rectangle {
                     tip-pos: "left";
                     clicked => {
                         Logic.set-read-entry(Store.current-rss-uuid, root.uuid);
-                    }
-                }
-            }
-
-            CenterLayout {
-                IconBtn {
-                    icon: @image-url("../../images/star-light.svg");
-                    tip-text: Store.translator.tip-favorite;
-                    tip-pos: "left";
-                    clicked => {
-                        Logic.favorite-entry(Store.current-rss-uuid, root.uuid);
                     }
                 }
             }

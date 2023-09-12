@@ -20,6 +20,10 @@ pub fn socks5() -> data::Socks5 {
     CONFIG.lock().unwrap().borrow().socks5.clone()
 }
 
+pub fn rss() -> data::RSS {
+    CONFIG.lock().unwrap().borrow().rss.clone()
+}
+
 pub fn ui() -> data::UI {
     CONFIG.lock().unwrap().borrow().ui.clone()
 }
@@ -88,6 +92,7 @@ impl Config {
             Ok(text) => match serde_json::from_str::<Config>(&text) {
                 Ok(c) => {
                     self.socks5 = c.socks5;
+                    self.rss = c.rss;
                     self.ui = c.ui;
                     Ok(())
                 }

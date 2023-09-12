@@ -20,6 +20,7 @@ pub fn tr(text: &str) -> String {
     items.insert("删除失败！", "Delete Session Failed!");
     items.insert("删除成功！", "Delete Session Success");
     items.insert("重置成功！", "Reset Success!");
+    items.insert("已经收藏！", "Already Marked!");
     items.insert("收藏成功！", "Marked Success!");
     items.insert("取消收藏成功！", "Unmarked Success!");
     items.insert("保存失败！", "Save Failed!");
@@ -32,6 +33,7 @@ pub fn tr(text: &str) -> String {
     items.insert("清除缓存失败！", "Clean Cache Failed!");
     items.insert("清除缓存成功！", "Clean Cache Success!");
     items.insert("不允许刷新！", "Not Allow Flushing!");
+    items.insert("打开链接失败！", "Open URL Failed!");
     items.insert("正在重试...", "retrying...");
 
     if let Some(txt) = items.get(text) {

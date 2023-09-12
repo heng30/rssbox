@@ -26,13 +26,16 @@ export component Body inherits Rectangle {
             ToolBar {
                 uuid: item.uuid;
                 is-read: item.is-read;
+                url: item.url;
             }
 
             Entry {
+                uuid: item.uuid;
                 text: item.title;
                 tag-text: item.tags;
                 pub-date-text: item.pub-date;
                 is-read: item.is-read;
+                url: item.url;
             }
         }
     }

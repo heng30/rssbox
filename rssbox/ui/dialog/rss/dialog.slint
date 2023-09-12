@@ -73,6 +73,7 @@ export component RssDialog inherits CDialog {
                 HorizontalLayout {
                     use-proxy-checkbox := CheckBox {
                         text: self.checked ? Store.translator.rss-dialog-used-proxy : Store.translator.rss-dialog-unused-proxy;
+                        enabled: line-edit-name.enabled;
                     }
                 }
             }

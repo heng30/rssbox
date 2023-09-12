@@ -1,0 +1,50 @@
+import { SpinBox, LineEdit } from "std-widgets.slint";
+import { Theme } from "../../theme.slint";
+import { Store } from "../../store.slint";
+import { Label } from "../../base/label.slint";
+
+export component RSS inherits VerticalLayout {
+    in-out property sync-interval <=> sync-interval-spin-box.value;
+    in-out property sync-timeout <=> sync-timeout-spin-box.value;
+    in-out property browser <=> browser-lineedit.text;
+
+    VerticalLayout {
+        spacing: Theme.spacing * 4;
+        alignment: start;
+
+        HorizontalLayout {
+            Label {
+                width: Theme.default-label-width;
+                text: Store.translator.setting-dialog-rss-sync-interval;
+            }
+
+            sync-interval-spin-box := SpinBox {
+                minimum: 0;
+                maximum: 12*60;
+            }
+        }
+
+        HorizontalLayout {
+            Label {
+                width: Theme.default-label-width;
+                text: Store.translator.setting-dialog-rss-sync-timeout;
+            }
+
+            sync-timeout-spin-box := SpinBox {
+                minimum: 10;
+                maximum: 60;
+            }
+        }
+
+        HorizontalLayout {
+            Label {
+                width: Theme.default-label-width;
+                text: Store.translator.setting-dialog-rss-sync-browser;
+            }
+
+            browser-lineedit := LineEdit {
+                placeholder-text: Store.translator.setting-dialog-rss-sync-browser-placeholder;
+            }
+        }
+    }
+}

@@ -13,7 +13,7 @@ pub struct Config {
     pub cache_dir: String,
 
     pub ui: UI,
-
+    pub rss: RSS,
     pub socks5: Socks5,
 }
 
@@ -34,6 +34,23 @@ impl Default for UI {
             win_width: 1200,
             win_height: 800,
             language: "cn".to_string(),
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct RSS {
+    pub sync_interval: u32,
+    pub sync_timeout: u32,
+    pub browser: String,
+}
+
+impl Default for RSS {
+    fn default() -> Self {
+        Self {
+            sync_interval: 60,
+            sync_timeout: 15,
+            browser: "".to_string(),
         }
     }
 }
