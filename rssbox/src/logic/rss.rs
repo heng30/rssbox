@@ -61,28 +61,13 @@ fn init_rss(ui: &AppWindow) {
             let mut unread_entrys = vec![];
 
             for item in items.into_iter() {
-                let config = item.1;
-
                 let mut rss = RssList {
                     entry: ModelRc::new(VecModel::from(entry::get_from_db(&item.0.as_str()))),
                     uuid: item.0.into(),
                     ..Default::default()
                 };
 
-                let mut unread_count = 0;
-                for entry in rss.entry.iter() {
-                    if !entry.is_read {
-                        unread_count += 1;
-                        unread_entrys.push(entry);
-                    }
-                }
-                rss.unread_count = unread_count;
-
-                if rss.uuid == UNREAD_UUID {
-                    ui.global::<Store>().set_rss_entry(rss.entry.clone());
-                }
-
-                match serde_json::from_str::<RssConfig>(&config) {
+                match serde_json::from_str::<RssConfig>(&item.1) {
                     Ok(conf) => {
                         rss.is_mark = conf.is_mark;
                         rss.use_proxy = conf.use_proxy;
@@ -96,6 +81,21 @@ fn init_rss(ui: &AppWindow) {
                         continue;
                     }
                 }
+
+                let mut unread_count = 0;
+                for mut entry in rss.entry.iter() {
+                    if !entry.is_read {
+                        unread_count += 1;
+                        entry.tags = rss.name.as_str().into();
+                        unread_entrys.push(entry);
+                    }
+                }
+                rss.unread_count = unread_count;
+
+                if rss.uuid == UNREAD_UUID {
+                    ui.global::<Store>().set_rss_entry(rss.entry.clone());
+                }
+
                 rsslists.push(rss);
             }
 
@@ -296,7 +296,12 @@ pub fn init(ui: &AppWindow) {
                 );
             }
 
-            // TODO: remove rss-list-items
+            ui.global::<Store>()
+                .get_rss_entry()
+                .as_any()
+                .downcast_ref::<VecModel<UIRssEntry>>()
+                .expect("We know we set a VecModel earlier")
+                .set_vec(vec![]);
 
             return;
         }
@@ -407,7 +412,7 @@ fn update_new_entrys(ui: &AppWindow, suuid: String, entrys: Vec<RssEntry>) {
             continue;
         }
 
-        for entry in entrys.into_iter() {
+        for mut entry in entrys.into_iter() {
             let mut found = false;
             for item in rss.entry.iter() {
                 if item.url == entry.url {
@@ -416,7 +421,7 @@ fn update_new_entrys(ui: &AppWindow, suuid: String, entrys: Vec<RssEntry>) {
                 }
             }
             if !found {
-                entry::update_new_entry(ui, &suuid, entry.clone());
+                entry::update_new_entry(ui, &suuid, &suuid, entry.clone());
             }
 
             found = false;
@@ -427,7 +432,8 @@ fn update_new_entrys(ui: &AppWindow, suuid: String, entrys: Vec<RssEntry>) {
                 }
             }
             if !found {
-                entry::update_new_entry(ui, UNREAD_UUID, entry);
+                entry.tags = rss.name.to_string();
+                entry::update_new_entry(ui, &suuid, UNREAD_UUID, entry);
             }
         }
         return;
@@ -472,23 +478,40 @@ async fn fetch_entry(config: SyncItem) -> Result<Vec<RssEntry>, Box<dyn std::err
 
 // Be careful, It runs in another thread
 pub async fn sync_rss(ui: Weak<AppWindow>, items: Vec<SyncItem>) -> CResult {
+    let mut is_success = true;
     for item in items.into_iter() {
         let suuid = item.uuid.clone();
         match fetch_entry(item).await {
             Ok(entry) => {
-                warn!("{:?}", entry);
                 let ui = ui.clone();
-                if let Err(e) = slint::invoke_from_event_loop(move || {
+                let _ = slint::invoke_from_event_loop(move || {
                     let ui = ui.unwrap();
                     update_new_entrys(&ui, suuid, entry);
-                }) {
-                    warn!("{:?}", e);
-                }
+                });
             }
             Err(e) => {
-                warn!("{:?}", e);
+                is_success = false;
+                let err = format!("{:?}", e);
+                let ui = ui.clone();
+                let _ = slint::invoke_from_event_loop(move || {
+                    let ui = ui.unwrap();
+                    ui.global::<Logic>().invoke_show_message(
+                        slint::format!("{} {}: {}", tr("同步失败！"), tr("原因"), err),
+                        "warning".into(),
+                    );
+                });
             }
         }
     }
+
+    if is_success {
+        let ui = ui.clone();
+        let _ = slint::invoke_from_event_loop(move || {
+            let ui = ui.unwrap();
+            ui.global::<Logic>()
+                .invoke_show_message(tr("同步成功！").into(), "success".into());
+        });
+    }
+
     Ok(())
 }

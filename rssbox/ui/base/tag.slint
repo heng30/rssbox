@@ -10,9 +10,7 @@ export component Tag inherits Rectangle {
     callback close <=> close-btn.clicked;
 
     border-radius: Theme.border-radius;
-    background: touch.has-hover ? Theme.brand-color.darker(50%) : Theme.brand-color.darker(30%);
-
-    touch := TouchArea { }
+    background: Theme.brand-color.darker(20%);
 
     HorizontalLayout {
         padding-left: Theme.padding;

@@ -63,6 +63,7 @@ impl From<&UIRssEntry> for RssEntry {
 impl From<RssEntry> for UIRssEntry {
     fn from(entry: RssEntry) -> Self {
         UIRssEntry {
+            suuid: "".into(),
             uuid: entry.uuid.into(),
             url: entry.url.into(),
             pub_date: entry.pub_date.into(),

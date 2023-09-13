@@ -2,7 +2,9 @@ use crate::config;
 use crate::db;
 use crate::db::data::RssEntry;
 use crate::rss;
-use crate::slint_generatedAppWindow::{AppWindow, Logic, RssEntry as UIRssEntry, Store};
+use crate::slint_generatedAppWindow::{
+    AppWindow, Logic, RssEntry as UIRssEntry, RssList as UIRssList, Store,
+};
 use crate::util::translator::tr;
 use cmd_lib::run_cmd;
 use log::warn;
@@ -22,7 +24,11 @@ pub fn get_from_db(suuid: &str) -> Vec<UIRssEntry> {
                 .iter()
                 .rev()
                 .map(|item| match serde_json::from_str::<RssEntry>(&item.1) {
-                    Ok(entry) => entry.into(),
+                    Ok(entry) => {
+                        let mut entry: UIRssEntry = entry.into();
+                        entry.suuid = suuid.into();
+                        entry
+                    }
                     Err(e) => {
                         warn!("{:?}", e);
                         UIRssEntry::default()
@@ -38,7 +44,7 @@ pub fn get_from_db(suuid: &str) -> Vec<UIRssEntry> {
     entrys
 }
 
-pub fn update_new_entry(ui: &AppWindow, suuid: &str, entry: RssEntry) {
+pub fn update_new_entry(ui: &AppWindow, real_suuid: &str, suuid: &str, entry: RssEntry) {
     match serde_json::to_string(&entry) {
         Ok(data) => {
             if suuid != rss::UNREAD_UUID {
@@ -56,7 +62,11 @@ pub fn update_new_entry(ui: &AppWindow, suuid: &str, entry: RssEntry) {
                     .as_any()
                     .downcast_ref::<VecModel<UIRssEntry>>()
                     .expect("We know we set a VecModel earlier")
-                    .insert(0, entry.into());
+                    .insert(0, {
+                        let mut entry: UIRssEntry = entry.into();
+                        entry.suuid = real_suuid.into();
+                        entry
+                    });
 
                 rss.unread_count = rss.unread_count + 1;
                 ui.global::<Store>()
@@ -69,6 +79,127 @@ pub fn update_new_entry(ui: &AppWindow, suuid: &str, entry: RssEntry) {
             warn!("{:?}", e);
         }
     };
+}
+
+fn get_rsslist(ui: &AppWindow, suuid: &str) -> UIRssList {
+    for rss in ui.global::<Store>().get_rss_lists().iter() {
+        if rss.uuid.as_str() == suuid {
+            return rss;
+        }
+    }
+    return UIRssList::default();
+}
+
+fn set_read_all_entry(ui: &AppWindow, suuid: &str) {
+    for entry in ui.global::<Store>().get_rss_entry().iter() {
+        if entry.is_read {
+            continue;
+        }
+        set_read_entry(&ui, suuid, entry.uuid.as_str());
+    }
+}
+
+fn set_read_entry(ui: &AppWindow, suuid: &str, uuid: &str) {
+    for rss in ui.global::<Store>().get_rss_lists().iter() {
+        if rss.uuid != suuid {
+            continue;
+        }
+
+        for (index, mut entry) in rss.entry.iter().enumerate() {
+            if entry.uuid == uuid {
+                if entry.is_read {
+                    return;
+                }
+
+                entry.is_read = true;
+
+                match serde_json::to_string(&RssEntry::from(&entry)) {
+                    Ok(data) => {
+                        if suuid != rss::UNREAD_UUID {
+                            if let Err(e) = db::entry::update(suuid, entry.uuid.as_str(), &data) {
+                                ui.global::<Logic>().invoke_show_message(
+                                    slint::format!("{}{}: {:?}", tr("保存失败！"), tr("原因"), e),
+                                    "warning".into(),
+                                );
+                            }
+                        }
+                    }
+                    Err(e) => {
+                        ui.global::<Logic>().invoke_show_message(
+                            slint::format!("{}{}: {:?}", tr("保存失败！"), tr("原因"), e),
+                            "warning".into(),
+                        );
+                    }
+                };
+
+                rss.entry
+                    .as_any()
+                    .downcast_ref::<VecModel<UIRssEntry>>()
+                    .expect("We know we set a VecModel earlier")
+                    .set_row_data(index, entry);
+
+                return;
+            }
+        }
+
+        return;
+    }
+}
+
+fn remove_all_entry(ui: &AppWindow, suuid: &str) {
+    ui.global::<Store>()
+        .get_rss_entry()
+        .as_any()
+        .downcast_ref::<VecModel<UIRssEntry>>()
+        .expect("We know we set a VecModel earlier")
+        .set_vec(vec![]);
+
+    if suuid != rss::UNREAD_UUID {
+        if let Err(e) = db::entry::delete_all(suuid) {
+            ui.global::<Logic>().invoke_show_message(
+                slint::format!("{}{}: {:?}", tr("清空失败！"), tr("原因"), e),
+                "warning".into(),
+            );
+        } else {
+            ui.global::<Logic>()
+                .invoke_show_message(tr("清空成功！").into(), "success".into());
+        }
+    }
+}
+
+fn remove_entry(ui: &AppWindow, suuid: &str, uuid: &str) {
+    for rss in ui.global::<Store>().get_rss_lists().iter() {
+        if rss.uuid != suuid {
+            continue;
+        }
+
+        for (index, entry) in rss.entry.iter().enumerate() {
+            if entry.uuid != uuid {
+                continue;
+            }
+
+            if suuid != rss::UNREAD_UUID {
+                if let Err(e) = db::entry::delete(suuid, uuid) {
+                    ui.global::<Logic>().invoke_show_message(
+                        slint::format!("{}{}: {:?}", tr("删除失败！"), tr("原因"), e),
+                        "warning".into(),
+                    );
+                } else {
+                    ui.global::<Logic>()
+                        .invoke_show_message(tr("删除成功！").into(), "success".into());
+                }
+            }
+
+            rss.entry
+                .as_any()
+                .downcast_ref::<VecModel<UIRssEntry>>()
+                .expect("We know we set a VecModel earlier")
+                .remove(index);
+
+            return;
+        }
+        return;
+    }
 }
 
 pub fn init(ui: &AppWindow) {
@@ -114,59 +245,67 @@ pub fn init(ui: &AppWindow) {
         }
     });
 
-    let set_read = |ui: &AppWindow,
-                    suuid: &slint::SharedString,
-                    index: usize,
-                    mut entry: UIRssEntry| {
-        entry.is_read = true;
-
-        match serde_json::to_string(&RssEntry::from(&entry)) {
-            Ok(data) => {
-                if suuid.as_str() != rss::UNREAD_UUID {
-                    if let Err(e) = db::entry::update(suuid.as_str(), entry.uuid.as_str(), &data) {
-                        ui.global::<Logic>().invoke_show_message(
-                            slint::format!("{}{}: {:?}", tr("保存失败！"), tr("原因"), e),
-                            "warning".into(),
-                        );
-                    }
-                }
-            }
-            Err(e) => {
-                ui.global::<Logic>().invoke_show_message(
-                    slint::format!("{}{}: {:?}", tr("保存失败！"), tr("原因"), e),
-                    "warning".into(),
-                );
-            }
-        };
-
-        ui.global::<Store>()
-            .get_rss_entry()
-            .set_row_data(index, entry);
-    };
-
     let ui_handle = ui.as_weak();
     ui.global::<Logic>().on_set_read_all_entry(move |suuid| {
+        if suuid == rss::FAVORITE_UUID {
+            return;
+        }
+
         let ui = ui_handle.unwrap();
 
-        for (index, entry) in ui.global::<Store>().get_rss_entry().iter().enumerate() {
-            if entry.is_read {
+        for rss in ui.global::<Store>().get_rss_lists().iter() {
+            if rss.uuid != suuid {
                 continue;
             }
-            set_read(&ui, &suuid, index, entry);
+
+            for entry in rss.entry.iter() {
+                if entry.is_read {
+                    continue;
+                }
+
+                set_read_entry(
+                    &ui,
+                    if suuid == rss::UNREAD_UUID {
+                        entry.suuid.as_str()
+                    } else {
+                        rss::UNREAD_UUID
+                    },
+                    entry.uuid.as_str(),
+                );
+            }
+
+            break;
         }
+        set_read_all_entry(&ui, suuid.as_str());
     });
 
     let ui_handle = ui.as_weak();
     ui.global::<Logic>().on_set_read_entry(move |suuid, uuid| {
-        let ui = ui_handle.unwrap();
-
-        for (index, entry) in ui.global::<Store>().get_rss_entry().iter().enumerate() {
-            if entry.is_read || entry.uuid != uuid {
-                continue;
-            }
-
-            set_read(&ui, &suuid, index, entry);
+        if suuid == rss::FAVORITE_UUID {
             return;
+        }
+
+        let ui = ui_handle.unwrap();
+        if suuid == rss::UNREAD_UUID {
+            for rss in ui.global::<Store>().get_rss_lists().iter() {
+                if rss.uuid != suuid {
+                    continue;
+                }
+
+                for entry in rss.entry.iter() {
+                    if entry.uuid == uuid {
+                        set_read_entry(&ui, entry.suuid.as_str(), uuid.as_str());
+
+                        break;
+                    }
+                }
+
+                break;
+            }
+            set_read_entry(&ui, rss::UNREAD_UUID, uuid.as_str());
+        } else {
+            set_read_entry(&ui, rss::UNREAD_UUID, uuid.as_str());
+            set_read_entry(&ui, suuid.as_str(), uuid.as_str());
         }
     });
 
@@ -174,60 +313,60 @@ pub fn init(ui: &AppWindow) {
     ui.global::<Logic>().on_remove_all_entry(move |suuid| {
         let ui = ui_handle.unwrap();
 
-        ui.global::<Store>()
-            .get_rss_entry()
-            .as_any()
-            .downcast_ref::<VecModel<UIRssEntry>>()
-            .expect("We know we set a VecModel earlier")
-            .set_vec(vec![]);
+        if suuid != rss::FAVORITE_UUID {
+            for rss in ui.global::<Store>().get_rss_lists().iter() {
+                if rss.uuid != suuid {
+                    continue;
+                }
 
-        if suuid != rss::UNREAD_UUID {
-            if let Err(e) = db::entry::delete_all(suuid.as_str()) {
-                ui.global::<Logic>().invoke_show_message(
-                    slint::format!("{}{}: {:?}", tr("清空失败！"), tr("原因"), e),
-                    "warning".into(),
-                );
-            } else {
-                ui.global::<Logic>()
-                    .invoke_show_message(tr("清空成功！").into(), "success".into());
+                for entry in rss.entry.iter() {
+                    remove_entry(
+                        &ui,
+                        if suuid == rss::UNREAD_UUID {
+                            entry.suuid.as_str()
+                        } else {
+                            rss::UNREAD_UUID
+                        },
+                        entry.uuid.as_str(),
+                    );
+                }
+
+                break;
             }
         }
+        remove_all_entry(&ui, suuid.as_str());
     });
 
     let ui_handle = ui.as_weak();
     ui.global::<Logic>().on_remove_entry(move |suuid, uuid| {
         let ui = ui_handle.unwrap();
-
-        for (index, entry) in ui.global::<Store>().get_rss_entry().iter().enumerate() {
-            if entry.uuid != uuid {
-                continue;
-            }
-
-            if suuid != rss::UNREAD_UUID {
-                if let Err(e) = db::entry::delete(suuid.as_str(), entry.uuid.as_str()) {
-                    ui.global::<Logic>().invoke_show_message(
-                        slint::format!("{}{}: {:?}", tr("删除失败！"), tr("原因"), e),
-                        "warning".into(),
-                    );
-                } else {
-                    ui.global::<Logic>()
-                        .invoke_show_message(tr("删除成功！").into(), "success".into());
+        if suuid == rss::UNREAD_UUID {
+            for rss in ui.global::<Store>().get_rss_lists().iter() {
+                if rss.uuid != suuid {
+                    continue;
                 }
+
+                for entry in rss.entry.iter() {
+                    if entry.uuid == uuid {
+                        remove_entry(&ui, entry.suuid.as_str(), uuid.as_str());
+
+                        break;
+                    }
+                }
+
+                break;
             }
-
-            ui.global::<Store>()
-                .get_rss_entry()
-                .as_any()
-                .downcast_ref::<VecModel<UIRssEntry>>()
-                .expect("We know we set a VecModel earlier")
-                .remove(index);
-
-            return;
+            remove_entry(&ui, rss::UNREAD_UUID, uuid.as_str());
+        } else {
+            if suuid != rss::FAVORITE_UUID {
+                remove_entry(&ui, rss::UNREAD_UUID, uuid.as_str());
+            }
+            remove_entry(&ui, suuid.as_str(), uuid.as_str());
         }
     });
 
     let ui_handle = ui.as_weak();
-    ui.global::<Logic>().on_favorite_entry(move |_suuid, uuid| {
+    ui.global::<Logic>().on_favorite_entry(move |suuid, uuid| {
         let ui = ui_handle.unwrap();
 
         for mut entry in ui.global::<Store>().get_rss_entry().iter() {
@@ -235,8 +374,7 @@ pub fn init(ui: &AppWindow) {
                 continue;
             }
 
-            // TODO: set tag
-            // entry.tags = rss
+            entry.tags = get_rsslist(&ui, suuid.as_str()).name;
             entry.is_read = true;
 
             match serde_json::to_string(&RssEntry::from(&entry)) {

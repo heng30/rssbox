@@ -34,6 +34,8 @@ pub fn tr(text: &str) -> String {
     items.insert("清除缓存成功！", "Clean Cache Success!");
     items.insert("不允许刷新！", "Not Allow Flushing!");
     items.insert("打开链接失败！", "Open URL Failed!");
+    items.insert("同步失败！", "Sync Failed!");
+    items.insert("同步成功！", "Sync Success!!");
     items.insert("正在重试...", "retrying...");
 
     if let Some(txt) = items.get(text) {
