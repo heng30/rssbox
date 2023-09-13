@@ -28,6 +28,8 @@ export struct Translation {
     setting-dialog-rss-sync-timeout: string,
     setting-dialog-rss-sync-browser: string,
     setting-dialog-rss-sync-browser-placeholder: string,
+    setting-dialog-rss-start-sync-enabled: string,
+    setting-dialog-rss-start-sync-disabled: string,
 
     setting-dialog-proxy: string,
     setting-dialog-proxy-type: string,
@@ -47,6 +49,7 @@ export struct Translation {
     rss-dialog-url-placeholder: string,
     rss-dialog-unused-proxy: string,
     rss-dialog-used-proxy: string,
+    rss-dialog-feed-format: string,
 
     icon-dialog-title: string,
 
@@ -111,6 +114,8 @@ export global Translator {
             setting-dialog-rss-sync-timeout: is-cn ? "更新超时(sec):" : "Sync Timeout(sec):",
             setting-dialog-rss-sync-browser: is-cn ? "浏览器:" : "Browser:",
             setting-dialog-rss-sync-browser-placeholder: is-cn ? "请输入浏览器": "Please Set Browser",
+            setting-dialog-rss-start-sync-enabled: is-cn ? "启用启动同步" : "Enabled Sync When Startup",
+            setting-dialog-rss-start-sync-disabled: is-cn ? "未启用启动同步" : "Disabled Sync When Startup",
 
             setting-dialog-proxy: is-cn ? "代理" : "Proxy",
             setting-dialog-proxy-type: is-cn ? "代理类型:" : "Type:",
@@ -129,6 +134,7 @@ export global Translator {
             rss-dialog-url-placeholder: is-cn ? "请输入RSS地址" : "Please Input RSS Address",
             rss-dialog-unused-proxy: is-cn ? "未启用代理" : "Disabled Proxy",
             rss-dialog-used-proxy: is-cn ? "已启用代理" : "Enabled Proxy",
+            rss-dialog-feed-format: is-cn ? "协议类型:" : "Protocol Type:",
 
             icon-dialog-title: is-cn ? "图标库" : "Icons",
 

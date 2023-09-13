@@ -7,6 +7,7 @@ impl From<RssConfig> for RssList {
             url: conf.url,
             use_proxy: conf.use_proxy,
             icon_index: conf.icon_index,
+            feed_format: conf.feed_format,
             ..Default::default()
         }
     }
@@ -16,6 +17,7 @@ pub struct SyncItem {
     pub uuid: String,
     pub url: String,
     pub use_proxy: bool,
+    pub feed_format: String,
 }
 
 impl From<RssList> for SyncItem {
@@ -24,6 +26,7 @@ impl From<RssList> for SyncItem {
             uuid: rss.uuid.to_string(),
             url: rss.url.to_string(),
             use_proxy: rss.use_proxy,
+            feed_format: rss.feed_format.to_string(),
         }
     }
 }

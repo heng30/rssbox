@@ -9,10 +9,12 @@ use crate::slint_generatedAppWindow::{
 use crate::util::http as uhttp;
 use crate::util::translator::tr;
 use crate::CResult;
+use atom_syndication::{Feed, FixedDateTime, Link};
 use log::warn;
 use rss::Channel;
 use slint::{ComponentHandle, Model, ModelRc, VecModel, Weak};
 use std::cmp::Ordering;
+use std::io::BufReader;
 use std::time::Duration;
 use tokio::task::spawn;
 use uuid::Uuid;
@@ -75,6 +77,7 @@ fn init_rss(ui: &AppWindow) {
                         rss.name = conf.name.into();
                         rss.url = conf.url.into();
                         rss.update_time = conf.update_time.into();
+                        rss.feed_format = conf.feed_format.into();
                     }
                     Err(e) => {
                         warn!("{:?}", e);
@@ -151,6 +154,7 @@ pub fn init(ui: &AppWindow) {
                     url: rss.url,
                     use_proxy: rss.use_proxy,
                     icon_index: rss.icon_index,
+                    feed_format: rss.feed_format,
                 });
                 return;
             }
@@ -222,6 +226,7 @@ pub fn init(ui: &AppWindow) {
             rss.url = config.url;
             rss.use_proxy = config.use_proxy;
             rss.icon_index = config.icon_index;
+            rss.feed_format = config.feed_format;
 
             match serde_json::to_string(&RssConfig::from(&rss)) {
                 Ok(config) => {
@@ -456,21 +461,57 @@ async fn fetch_entry(config: SyncItem) -> Result<Vec<RssEntry>, Box<dyn std::err
         .await?;
 
     let mut entry = vec![];
-    let ch = Channel::read_from(&content[..])?;
-    for item in ch.items() {
-        let url = item.link().unwrap_or("").to_string();
-        let title = item.title().unwrap_or("").to_string();
-        if url.is_empty() || title.is_empty() {
-            continue;
-        }
 
-        entry.push(RssEntry {
-            url,
-            title,
-            uuid: Uuid::new_v4().to_string(),
-            pub_date: item.pub_date().unwrap_or("").to_string(),
-            ..Default::default()
-        });
+    let feed_format = config.feed_format.to_lowercase();
+
+    if  feed_format == "rss" {
+        let ch = Channel::read_from(&content[..])?;
+        for item in ch.items() {
+            let url = item.link().unwrap_or("").to_string();
+            let title = item.title().unwrap_or("").to_string();
+
+            let pub_date = item.pub_date().unwrap_or("").to_string();
+            if url.is_empty() || title.is_empty() {
+                continue;
+            }
+
+            entry.push(RssEntry {
+                url,
+                title,
+                pub_date,
+                uuid: Uuid::new_v4().to_string(),
+                ..Default::default()
+            });
+        }
+    } else if feed_format == "atom" {
+        let feed = Feed::read_from(BufReader::new(&content[..]))?;
+        for item in feed.entries() {
+            let url = item
+                .links()
+                .first()
+                .unwrap_or(&Link::default())
+                .href()
+                .to_string();
+            let title = item.title().value.clone();
+            let pub_date = item
+                .published()
+                .unwrap_or(&FixedDateTime::default())
+                .to_string();
+
+            if url.is_empty() || title.is_empty() {
+                continue;
+            }
+
+            entry.push(RssEntry {
+                url,
+                title,
+                pub_date,
+                uuid: Uuid::new_v4().to_string(),
+                ..Default::default()
+            });
+        }
+    } else {
+        warn!("unimplemented feed format: {}", feed_format);
     }
 
     Ok(entry)

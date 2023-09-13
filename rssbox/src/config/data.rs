@@ -43,6 +43,7 @@ pub struct RSS {
     pub sync_interval: u32,
     pub sync_timeout: u32,
     pub browser: String,
+    pub start_sync: bool,
 }
 
 impl Default for RSS {
@@ -51,6 +52,7 @@ impl Default for RSS {
             sync_interval: 60,
             sync_timeout: 15,
             browser: "".to_string(),
+            start_sync: false,
         }
     }
 }

@@ -1,4 +1,4 @@
-import { SpinBox, LineEdit } from "std-widgets.slint";
+import { SpinBox, CheckBox, LineEdit } from "std-widgets.slint";
 import { Theme } from "../../theme.slint";
 import { Store } from "../../store.slint";
 import { Label } from "../../base/label.slint";
@@ -7,6 +7,7 @@ export component RSS inherits VerticalLayout {
     in-out property sync-interval <=> sync-interval-spin-box.value;
     in-out property sync-timeout <=> sync-timeout-spin-box.value;
     in-out property browser <=> browser-lineedit.text;
+    in-out property start-sync <=> start-sync-checkbox.checked;
 
     VerticalLayout {
         spacing: Theme.spacing * 4;
@@ -44,6 +45,12 @@ export component RSS inherits VerticalLayout {
 
             browser-lineedit := LineEdit {
                 placeholder-text: Store.translator.setting-dialog-rss-sync-browser-placeholder;
+            }
+        }
+
+        HorizontalLayout {
+            start-sync-checkbox := CheckBox {
+            text: self.checked ? Store.translator.setting-dialog-rss-start-sync-enabled : Store.translator.setting-dialog-rss-start-sync-disabled;
             }
         }
     }

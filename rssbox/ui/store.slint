@@ -17,6 +17,7 @@ export struct RssList {
     url: string,
     use-proxy: bool,
     icon-index: int,
+    feed_format: string,
 
     unread-count: int,
     update-time: string,
@@ -45,6 +46,7 @@ export struct RssConfig {
     url: string,
     use-proxy: bool,
     icon-index: int,
+    feed_format: string,
 }
 
 export struct OkCancelDialogSetting {
@@ -68,6 +70,7 @@ export struct SettingRSS {
     sync-interval: int,
     sync-timeout: int,
     browser: string,
+    start-sync: bool,
 }
 
 export struct SettingProxy {

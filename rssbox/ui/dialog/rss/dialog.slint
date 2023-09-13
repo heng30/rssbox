@@ -1,4 +1,4 @@
-import { CheckBox, LineEdit } from "std-widgets.slint";
+import { CheckBox, ComboBox, LineEdit } from "std-widgets.slint";
 import { CDialog } from "../../base/cdialog.slint";
 import { Label } from "../../base/label.slint";
 import { Store, RssConfig } from "../../store.slint";
@@ -22,6 +22,11 @@ export component RssDialog inherits CDialog {
         line-edit-url.text = config.url;
         use-proxy-checkbox.checked = config.use-proxy;
         root.icon-index = config.icon-index;
+
+        feed-format-combobox.current-value = config.feed-format;
+        if (config.feed-format == "") {
+            feed-format-combobox.current-value = feed-format-combobox.model[0];
+        }
 
         line-edit-name.enabled = !(config.uuid == "unread-uuid" || config.uuid == "favorite-uuid");
     }
@@ -68,6 +73,19 @@ export component RssDialog inherits CDialog {
                 }
             }
 
+            HorizontalLayout {
+                Label {
+                    width: root.text-width;
+                    text: Store.translator.rss-dialog-feed-format;
+                }
+
+                feed-format-combobox := ComboBox {
+                    enabled: line-edit-name.enabled;
+                    model: ["RSS", "ATOM"];
+                    current-value: self.model[0];
+                }
+            }
+
 
             HorizontalLayout {
                 HorizontalLayout {
@@ -87,6 +105,7 @@ export component RssDialog inherits CDialog {
                 url: line-edit-url.text,
                 use-proxy: use-proxy-checkbox.checked,
                 icon_index: root.icon-index,
+                feed-format: feed-format-combobox.current-value,
             });
         } else if (Store.rss-dialog-setting.handle-type == "rss-edit") {
             Logic.save-rss(Store.current-rss-uuid, {
@@ -94,6 +113,7 @@ export component RssDialog inherits CDialog {
                 url: line-edit-url.text,
                 use-proxy: use-proxy-checkbox.checked,
                 icon_index: root.icon-index,
+                feed-format: feed-format-combobox.current-value,
             });
         }
 

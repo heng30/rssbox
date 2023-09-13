@@ -1,6 +1,10 @@
 use crate::slint_generatedAppWindow::{RssConfig as UIRssConfig, RssEntry as UIRssEntry, RssList};
 use std::fmt::Debug;
 
+fn feed_format_default() -> String{
+    "RSS".to_string()
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct RssConfig {
     pub name: String,
@@ -9,6 +13,9 @@ pub struct RssConfig {
     pub use_proxy: bool,
     pub is_mark: bool,
     pub update_time: String,
+
+    #[serde(default = "feed_format_default")]
+    pub feed_format: String,
 }
 
 #[derive(Serialize, Deserialize, Default, Debug, Clone)]
@@ -30,6 +37,7 @@ impl From<&RssList> for RssConfig {
             use_proxy: conf.use_proxy,
             is_mark: conf.is_mark,
             update_time: conf.update_time.clone().into(),
+            feed_format: conf.feed_format.clone().into(),
         }
     }
 }
@@ -41,6 +49,7 @@ impl From<&UIRssConfig> for RssConfig {
             url: conf.url.clone().into(),
             icon_index: conf.icon_index,
             use_proxy: conf.use_proxy,
+            feed_format: conf.feed_format.clone().into(),
             is_mark: false,
             update_time: "".into(),
         }
