@@ -421,16 +421,17 @@ pub fn init(ui: &AppWindow) {
         });
 
     let ui_handle = ui.as_weak();
-    ui.global::<Logic>().on_get_update_time(move |suuid, _flag| {
-        let ui = ui_handle.unwrap();
+    ui.global::<Logic>()
+        .on_get_update_time(move |suuid, _flag| {
+            let ui = ui_handle.unwrap();
 
-        for rss in ui.global::<Store>().get_rss_lists().iter() {
-            if rss.uuid == suuid {
-                return rss.update_time;
+            for rss in ui.global::<Store>().get_rss_lists().iter() {
+                if rss.uuid == suuid {
+                    return rss.update_time;
+                }
             }
-        }
-        "".into()
-    });
+            "".into()
+        });
 }
 
 fn update_new_entrys(ui: &AppWindow, suuid: String, entrys: Vec<RssEntry>) {

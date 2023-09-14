@@ -48,14 +48,14 @@ async fn main() -> CResult {
     entry::init(&ui);
     ok_cancel_dialog::init(&ui);
 
-    sync_rss(&ui);
+    let _timer = sync_rss(&ui);
     ui.run().unwrap();
 
     debug!("{}", "exit...");
     Ok(())
 }
 
-fn sync_rss(ui: &AppWindow) {
+fn sync_rss(ui: &AppWindow) -> Timer {
     let rss_config = config::rss();
     if rss_config.start_sync {
         ui.global::<Logic>()
@@ -65,12 +65,12 @@ fn sync_rss(ui: &AppWindow) {
     let ui_handle = ui.as_weak();
     SYNC_TIMESTAMP_CACHE.store(Utc::now().timestamp(), Ordering::SeqCst);
 
-    Timer::default().start(TimerMode::Repeated, Duration::from_secs(1), move || {
+    let timer = Timer::default();
+    timer.start(TimerMode::Repeated, Duration::from_secs(10), move || {
         let config = config::rss();
         let sync_interval = i64::max(config.sync_interval as i64, 1_i64) * 60;
         let now = Utc::now().timestamp();
-        if SYNC_TIMESTAMP_CACHE.load(Ordering::SeqCst) + sync_interval > now {
-            debug!("1111");
+        if SYNC_TIMESTAMP_CACHE.load(Ordering::SeqCst) + sync_interval < now {
             SYNC_TIMESTAMP_CACHE.store(now, Ordering::SeqCst);
 
             let ui = ui_handle.unwrap();
@@ -78,6 +78,7 @@ fn sync_rss(ui: &AppWindow) {
                 .invoke_sync_rss(rss::UNREAD_UUID.into());
         }
     });
+    timer
 }
 
 fn init_logger() {
