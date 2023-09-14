@@ -4,6 +4,10 @@ import { Body } from "./body/panel.slint";
 import { Divider } from "../base/divider.slint";
 
 export component RPanel inherits VerticalLayout {
+    public function scroll-to-top()  {
+        body.scroll-to-top();
+    }
+
     header := Header{ }
 
     VerticalLayout {

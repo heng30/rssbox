@@ -270,6 +270,17 @@ pub fn init(ui: &AppWindow) {
                 continue;
             }
 
+            ui.global::<Logic>().invoke_remove_all_entry(uuid.clone());
+            ui.global::<Logic>()
+                .invoke_switch_rss(uuid.clone(), UNREAD_UUID.into());
+
+            if let Err(e) = db::entry::drop_table(uuid.as_str()) {
+                ui.global::<Logic>().invoke_show_message(
+                    slint::format!("{}{}: {:?}", tr("删除失败！"), tr("原因"), e),
+                    "warning".into(),
+                );
+            }
+
             ui.global::<Store>()
                 .get_rss_lists()
                 .as_any()
@@ -285,26 +296,10 @@ pub fn init(ui: &AppWindow) {
                     );
                 }
                 _ => {
-                    ui.global::<Store>()
-                        .set_current_rss_uuid(UNREAD_UUID.into());
                     ui.global::<Logic>()
                         .invoke_show_message(tr("删除会话成功！").into(), "success".into());
                 }
             }
-
-            if let Err(e) = db::entry::drop_table(rss.uuid.as_str()) {
-                ui.global::<Logic>().invoke_show_message(
-                    slint::format!("{}{}: {:?}", tr("删除失败！"), tr("原因"), e),
-                    "warning".into(),
-                );
-            }
-
-            ui.global::<Store>()
-                .get_rss_entry()
-                .as_any()
-                .downcast_ref::<VecModel<UIRssEntry>>()
-                .expect("We know we set a VecModel earlier")
-                .set_vec(vec![]);
 
             return;
         }
@@ -369,6 +364,8 @@ pub fn init(ui: &AppWindow) {
                     break;
                 }
             }
+
+            ui.invoke_scroll_to_top();
         });
 
     let ui_handle = ui.as_weak();
@@ -517,8 +514,23 @@ async fn fetch_entry(config: SyncItem) -> Result<Vec<RssEntry>, Box<dyn std::err
             let url = item.link().unwrap_or("").to_string();
             let title = item.title().unwrap_or("").to_string();
             let author = item.author().unwrap_or("").to_string();
-            let summary = item.description().unwrap_or("").to_string();
             let pub_date = item.pub_date().unwrap_or("").to_string();
+
+            let summary = if item.description().is_some() {
+                let s = item.description().unwrap();
+                if s.contains("</a>")
+                    || s.contains("</p>")
+                    || s.contains("</div>")
+                    || s.contains("href=")
+                {
+                    "".to_string()
+                } else {
+                    s.to_string()
+                }
+            } else {
+                "".to_string()
+            };
+
             let tags = item
                 .categories()
                 .iter()

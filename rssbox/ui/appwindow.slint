@@ -28,9 +28,13 @@ export component AppWindow inherits Window {
         rss-dialog.set(config);
     }
 
+    public function scroll-to-top()  {
+        rpanel.scroll-to-top();
+    }
+
     HorizontalLayout {
         LPanel {}
-        RPanel {}
+        rpanel := RPanel {}
     }
 
     modal := Rectangle {

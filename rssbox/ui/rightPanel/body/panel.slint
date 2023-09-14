@@ -8,6 +8,10 @@ import { Entry } from "./entry.slint";
 import { ToolBar } from "./toolbar.slint";
 
 export component Body inherits Rectangle {
+    public function scroll-to-top()  {
+        lv.viewport-y = 0;
+    }
+
     CenterLayout {
         NoMessageImg {
             visible: Store.rss-entry.length <= 0;
@@ -16,7 +20,7 @@ export component Body inherits Rectangle {
         }
     }
 
-    ListView {
+    lv := ListView {
         for item[index] in Store.rss-entry : VerticalLayout {
             padding-top: Theme.padding;
             padding-left: Theme.padding * 4 + Theme.scroll-width;
