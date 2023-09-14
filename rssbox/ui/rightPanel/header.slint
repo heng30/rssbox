@@ -37,6 +37,36 @@ export component Header inherits Rectangle {
                         }
                     }
                 }
+
+                HorizontalLayout {
+                    spacing: Theme.padding * 4;
+                    property <length> max-font-size: 24px;
+
+                    Text {
+                        vertical-alignment: center;
+                        text: Store.translator.header-unread-entry-counts + Logic.unread_counts(Store.rss-entry, Store.rss-entry.length, Store.unread-count-flag);
+                        font-size: Math.min(Theme.default-font-size - 4px, parent.max-font-size);
+                        color: Theme.secondary-text-color;
+                    }
+
+                    Text {
+                        vertical-alignment: center;
+                        text: Store.translator.header-all-entry-counts + Store.rss-entry.length;
+                        font-size: Math.min(Theme.default-font-size - 4px, parent.max-font-size);
+                        color: Theme.secondary-text-color;
+                    }
+
+                    Text {
+                        property<string> update-time:  Logic.get-update-time(Store.current-rss-uuid, Store.update-time-flag);
+
+                        visible: update-time != "";
+                        vertical-alignment: center;
+                        text: Store.translator.header-all-update-time + update-time;
+                        font-size: Math.min(Theme.default-font-size - 4px, parent.max-font-size);
+                        color: Theme.secondary-text-color;
+                    }
+
+                }
             }
 
             HorizontalLayout {

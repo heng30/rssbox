@@ -40,10 +40,7 @@ pub fn insert(uuid: &str, config: &str) -> Result<()> {
 pub fn update(uuid: &str, config: &str) -> Result<()> {
     let conn = connection()?;
 
-    conn.execute(
-        "UPDATE rss SET config=? WHERE uuid=?",
-        [config, uuid],
-    )?;
+    conn.execute("UPDATE rss SET config=? WHERE uuid=?", [config, uuid])?;
 
     Ok(())
 }
@@ -52,13 +49,8 @@ pub fn update(uuid: &str, config: &str) -> Result<()> {
 pub fn select(uuid: &str) -> Result<Option<String>> {
     let conn = connection()?;
 
-    let mut stmt = conn.prepare(&format!(
-        "SELECT config FROM rss WHERE uuid='{}'",
-        uuid
-    ))?;
-    let mut rows = stmt.query_map([], |row| {
-        Ok(row.get::<_, String>(0)?)
-    })?;
+    let mut stmt = conn.prepare(&format!("SELECT config FROM rss WHERE uuid='{}'", uuid))?;
+    let mut rows = stmt.query_map([], |row| Ok(row.get::<_, String>(0)?))?;
 
     if let Some(Ok(row)) = rows.next() {
         return Ok(Some(row));
@@ -71,10 +63,7 @@ pub fn select_all() -> Result<Vec<(String, String)>> {
 
     let mut stmt = conn.prepare("SELECT uuid, config FROM rss")?;
     let rows = stmt.query_map([], |row| {
-        Ok((
-            row.get::<_, String>(0)?,
-            row.get::<_, String>(1)?,
-        ))
+        Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?))
     })?;
 
     Ok(rows.flatten().collect())

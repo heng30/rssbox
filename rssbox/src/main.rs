@@ -7,10 +7,14 @@ extern crate serde_derive;
 extern crate lazy_static;
 
 use chrono::Local;
+use chrono::Utc;
 use env_logger::fmt::Color as LColor;
 use log::debug;
+use slint::{Timer, TimerMode};
 use std::env;
 use std::io::Write;
+use std::sync::atomic::{AtomicI64, Ordering};
+use std::time::Duration;
 
 mod config;
 mod db;
@@ -18,9 +22,11 @@ mod logic;
 mod util;
 mod version;
 
-use logic::{about, rss, clipboard, message, ok_cancel_dialog, setting, window, entry};
+use logic::{about, clipboard, entry, message, ok_cancel_dialog, rss, setting, window};
 
 pub type CResult = Result<(), Box<dyn std::error::Error>>;
+
+static SYNC_TIMESTAMP_CACHE: AtomicI64 = AtomicI64::new(0);
 
 #[tokio::main]
 async fn main() -> CResult {
@@ -40,12 +46,38 @@ async fn main() -> CResult {
     setting::init(&ui);
     rss::init(&ui);
     entry::init(&ui);
-
     ok_cancel_dialog::init(&ui);
+
+    sync_rss(&ui);
     ui.run().unwrap();
 
     debug!("{}", "exit...");
     Ok(())
+}
+
+fn sync_rss(ui: &AppWindow) {
+    let rss_config = config::rss();
+    if rss_config.start_sync {
+        ui.global::<Logic>()
+            .invoke_sync_rss(rss::UNREAD_UUID.into());
+    }
+
+    let ui_handle = ui.as_weak();
+    SYNC_TIMESTAMP_CACHE.store(Utc::now().timestamp(), Ordering::SeqCst);
+
+    Timer::default().start(TimerMode::Repeated, Duration::from_secs(1), move || {
+        let config = config::rss();
+        let sync_interval = i64::max(config.sync_interval as i64, 1_i64) * 60;
+        let now = Utc::now().timestamp();
+        if SYNC_TIMESTAMP_CACHE.load(Ordering::SeqCst) + sync_interval > now {
+            debug!("1111");
+            SYNC_TIMESTAMP_CACHE.store(now, Ordering::SeqCst);
+
+            let ui = ui_handle.unwrap();
+            ui.global::<Logic>()
+                .invoke_sync_rss(rss::UNREAD_UUID.into());
+        }
+    });
 }
 
 fn init_logger() {

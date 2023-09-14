@@ -9,6 +9,7 @@ import { Tip } from "../../base/tip.slint";
 export component ToolBar inherits Rectangle {
     in-out property<bool> is-read: false;
     in-out property<string> uuid;
+    in-out property<string> suuid;
     in-out property<string> url;
 
     HorizontalLayout {
@@ -50,6 +51,13 @@ export component ToolBar inherits Rectangle {
                     tip-pos: "left";
                     clicked => {
                         Logic.set-read-entry(Store.current-rss-uuid, root.uuid);
+                        debug(root.suuid, root.uuid);
+                        Logic.toggle-unread-count-flag("unread-uuid");
+                        if (Store.current-rss-uuid == "unread-uuid") {
+                            Logic.toggle-unread-count-flag(root.suuid);
+                        } else {
+                            Logic.toggle-unread-count-flag(Store.current-rss-uuid);
+                        }
                     }
                 }
             }

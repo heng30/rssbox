@@ -5,11 +5,14 @@ import { CenterLayout } from "../../base/center-layout.slint";
 import { Tag } from "../../base/tag.slint";
 
 export component Entry inherits Rectangle {
-    in-out property text <=> txt.text;
+    in-out property title <=> title-txt.text;
+    in-out property summary <=> summary-txt.text;
     in-out property pub-date-text <=> pub-date-txt.text;
+    in-out property<string> author;
     in-out property<string> tag-text;
     in-out property<bool> is-read: false;
     in-out property<string> uuid;
+    in-out property<string> suuid;
     in-out property<string> url;
 
     background: Theme.light-fill-color;
@@ -27,9 +30,9 @@ export component Entry inherits Rectangle {
         padding: Theme.padding * 2;
         spacing: Theme.spacing * 2;
 
-        txt := Text {
+        title-txt := Text {
             wrap: word-wrap;
-            font-size: Theme.enlarge-font-size;
+            font-size: Theme.title3-font-size;
             color: touch-2.has-hover ? Theme.link-text-color :  (root.is-read && Store.current-rss-uuid != "favorite-uuid" ? Theme.have-read-text-color : Theme.primary-text-color);
 
             touch-2 := TouchArea {
@@ -37,8 +40,22 @@ export component Entry inherits Rectangle {
                 clicked => {
                     Logic.set-read-entry(Store.current-rss-uuid, root.uuid);
                     Logic.open-url(root.url);
+
+                    Logic.toggle-unread-count-flag("unread-uuid");
+                    if (Store.current-rss-uuid == "unread-uuid") {
+                        Logic.toggle-unread-count-flag(root.suuid);
+                    } else {
+                        Logic.toggle-unread-count-flag(Store.current-rss-uuid);
+                    }
                 }
             }
+        }
+
+        summary-txt := Text {
+            visible: self.text != "";
+            height: self.visible ? self.preferred-height : 0px;
+            wrap: word-wrap;
+            color: Theme.regular-text-color;
         }
 
         HorizontalLayout {
@@ -48,14 +65,28 @@ export component Entry inherits Rectangle {
             HorizontalLayout {
                 visible: root.tag-text != "";
                 spacing: Theme.spacing;
-                for text in Logic.parse-tags(root.tag-text) : Tag {
+                for text[index] in Logic.parse-tags(root.tag-text) : Tag {
+                    background: Theme.tag-colors[Math.mod(index, Theme.tag-colors.length)];
+                    text-color: self.background.darker(100%);
                     text: text;
                 }
             }
 
-            pub-date-txt := Text {
-                font-size: Theme.default-font-size - 4px;
-                color: Theme.secondary-text-color;
+            HorizontalLayout {
+                alignment: end;
+                spacing: Theme.padding * 4;
+
+                author-txt := Text {
+                    visible: root.author != "";
+                    font-size: Theme.default-font-size - 4px;
+                    color: Theme.secondary-text-color;
+                    text: Store.translator.author + root.author;
+                }
+
+                pub-date-txt := Text {
+                    font-size: Theme.default-font-size - 4px;
+                    color: Theme.secondary-text-color;
+                }
             }
         }
     }

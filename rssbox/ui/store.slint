@@ -6,6 +6,8 @@ export struct RssEntry {
     title: string,
     pub-date: string,
     tags: string,
+    author: string,
+    summary: string,
 
     suuid: string,
     is-read: bool,
@@ -19,10 +21,11 @@ export struct RssList {
     icon-index: int,
     feed_format: string,
 
-    unread-count: int,
     update-time: string,
     is-mark: bool,
     entry: [RssEntry],
+
+    unread-counts-flag: bool,
 }
 
 export struct MessageItem {
@@ -100,7 +103,9 @@ export global Store  {
             pub-date: "2023-10-22 23:12:34",
             tags: "rust",
             is-read: false,
-            title: "fwjifwjfiwjfiwej iwfjwi jweofjwiefj wifj wifjweio jweifj jwfiw jiwefj wijf iwjf wije iwej w ijfwio jwijf wijfwi ojfwi jfwi jwij iwjfwie jwiefjw iojfwi wjfiwe wefj wifj wi jfwi",
+            author: "hello",
+            title: "Actors may modify their own private state, but can only affect each other indirectly through messaging (removing the need for lock-based synchronization).",
+            summary: "The actor model in computer science is a mathematical model of concurrent computation that treats an actor as the basic building block of concurrent computation. In response to a message it receives, an actor can: make local decisions, create more actors, send more messages, and determine how to respond to the next message received.",
         },
         {
             uuid: "xx2342jkfjk",
@@ -119,6 +124,8 @@ export global Store  {
         }
     ];
 
+    in-out property<bool> unread-count-flag: false;
+    in-out property<bool> update-time-flag: false;
     in-out property<string> current-rss-uuid: rss-lists[0].uuid;
     in-out property<[RssList]> rss-lists: [
         {
@@ -213,6 +220,14 @@ export global Store  {
         }
 
         return name;
+    }
+
+    public function toggle-unread-count-flag() {
+        Store.unread-count-flag = !Store.unread-count-flag;
+    }
+
+    public function toggle-update-time-flag() {
+        Store.update-time-flag = !Store.update-time-flag;
     }
 }
 

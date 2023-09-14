@@ -1,4 +1,4 @@
-import { RssConfig, SettingDialogConfig } from "./store.slint";
+import { RssConfig, RssEntry, SettingDialogConfig } from "./store.slint";
 
 export global Logic {
     callback hide-window();
@@ -14,7 +14,13 @@ export global Logic {
     callback reset-rss-dialog();
 
     pure callback parse-tags(string) -> [string];
-    parse-tags(tags) => { return [tags]; }
+    parse-tags(tags) => { return [tags, "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]; }
+
+    pure callback unread-counts([RssEntry], int, bool) -> int;
+    unread-counts(entrys, counts, flag) => { return entrys.length; }
+
+    pure callback get-update-time(string, bool) -> string;
+    get-update-time(suuid) => { return "2023-09-14 19:11"; }
 
     callback favorite-entry(string, string);
     callback remove-entry(string, string);
@@ -22,6 +28,7 @@ export global Logic {
     callback set-read-entry(string, string);
     callback set-read-all-entry(string);
     callback open-url(string);
+    callback toggle-unread-count-flag(string);
 
     callback show-message(string, string);
     callback copy-to-clipboard(string);

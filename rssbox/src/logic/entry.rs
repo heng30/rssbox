@@ -54,7 +54,7 @@ pub fn update_new_entry(ui: &AppWindow, real_suuid: &str, suuid: &str, entry: Rs
                 }
             }
 
-            for (index, mut rss) in ui.global::<Store>().get_rss_lists().iter().enumerate() {
+            for (index, rss) in ui.global::<Store>().get_rss_lists().iter().enumerate() {
                 if rss.uuid.as_str() != suuid {
                     continue;
                 }
@@ -68,7 +68,6 @@ pub fn update_new_entry(ui: &AppWindow, real_suuid: &str, suuid: &str, entry: Rs
                         entry
                     });
 
-                rss.unread_count = rss.unread_count + 1;
                 ui.global::<Store>()
                     .get_rss_lists()
                     .set_row_data(index, rss);
@@ -212,6 +211,17 @@ pub fn init(ui: &AppWindow) {
         ModelRc::new(VecModel::from(items))
     });
 
+    ui.global::<Logic>()
+        .on_unread_counts(move |entrys, _counts, _flag| {
+            let mut counts = 0;
+            for entry in entrys.iter() {
+                if !entry.is_read {
+                    counts += 1;
+                }
+            }
+            counts
+        });
+
     let ui_handle = ui.as_weak();
     ui.global::<Logic>().on_open_url(move |url| {
         let ui = ui_handle.unwrap();
@@ -277,6 +287,30 @@ pub fn init(ui: &AppWindow) {
             break;
         }
         set_read_all_entry(&ui, suuid.as_str());
+
+        ui.global::<Store>().invoke_toggle_unread_count_flag();
+        if suuid == rss::UNREAD_UUID {
+            for (index, mut rss) in ui.global::<Store>().get_rss_lists().iter().enumerate() {
+                rss.unread_counts_flag = !rss.unread_counts_flag;
+                ui.global::<Store>()
+                    .get_rss_lists()
+                    .set_row_data(index, rss);
+            }
+        } else {
+            for (index, mut rss) in ui.global::<Store>().get_rss_lists().iter().enumerate() {
+                if rss.uuid == rss::UNREAD_UUID || rss.uuid == suuid {
+                    rss.unread_counts_flag = !rss.unread_counts_flag;
+                    let is_break = rss.uuid == suuid;
+                    ui.global::<Store>()
+                        .get_rss_lists()
+                        .set_row_data(index, rss);
+
+                    if is_break {
+                        break;
+                    }
+                }
+            }
+        }
     });
 
     let ui_handle = ui.as_weak();

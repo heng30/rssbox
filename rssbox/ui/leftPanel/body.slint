@@ -5,6 +5,7 @@ import { IconBtn } from "../base/icon-btn.slint";
 import { IconBtn } from "../base/icon-btn.slint";
 import { Brand } from "../base/brand.slint";
 import { CenterLayout } from "../base/center-layout.slint";
+import { Tag } from "../base/tag.slint";
 
 export component Body inherits Rectangle {
     private property<length> item-height: 45px;
@@ -76,8 +77,25 @@ export component Body inherits Rectangle {
 
                     HorizontalLayout {
                         alignment: end;
+                        spacing: Theme.spacing;
+                        padding-left: Theme.padding;
 
                         VerticalLayout {
+                            property<int> unread-counts: Logic.unread-counts(data.entry, data.entry.length, data.unread-counts-flag);
+
+                            visible: unread-tag.text > 0;
+                            alignment: center;
+                            height: root.item-height;
+                            unread-tag := Tag {
+                                text: parent.unread-counts;
+                                text-color: Theme.danger-color;
+                                border-radius: self.height / 2;
+                                h-padding: Theme.padding;
+                                background: Colors.transparent;
+                            }
+                        }
+
+                        start-vbox := VerticalLayout {
                             alignment: center;
                             IconBtn {
                                 icon: @image-url("../images/star.svg");

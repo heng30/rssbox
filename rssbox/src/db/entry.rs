@@ -1,6 +1,6 @@
 use crate::config;
-use rusqlite::{params, Connection, Result};
 use crate::rss;
+use rusqlite::{params, Connection, Result};
 
 fn connection() -> Result<Connection> {
     let (_, _, db_path) = config::path();
@@ -45,10 +45,7 @@ pub fn delete(suuid: &str, uuid: &str) -> Result<()> {
 
 pub fn delete_all(suuid: &str) -> Result<()> {
     let conn = connection()?;
-    conn.execute(
-        &format!("DELETE FROM {}", table_name(suuid)),
-        [],
-    )?;
+    conn.execute(&format!("DELETE FROM {}", table_name(suuid)), [])?;
     Ok(())
 }
 
@@ -85,9 +82,7 @@ pub fn select(suuid: &str, uuid: &str) -> Result<Option<String>> {
         table_name(suuid),
         uuid
     ))?;
-    let mut rows = stmt.query_map([], |row| {
-        Ok(row.get::<_, String>(0)?)
-    })?;
+    let mut rows = stmt.query_map([], |row| Ok(row.get::<_, String>(0)?))?;
 
     if let Some(Ok(row)) = rows.next() {
         return Ok(Some(row));
@@ -98,15 +93,9 @@ pub fn select(suuid: &str, uuid: &str) -> Result<Option<String>> {
 pub fn select_all(suuid: &str) -> Result<Vec<(String, String)>> {
     let conn = connection()?;
 
-    let mut stmt = conn.prepare(&format!(
-        "SELECT uuid, data FROM {}",
-        table_name(suuid)
-    ))?;
+    let mut stmt = conn.prepare(&format!("SELECT uuid, data FROM {}", table_name(suuid)))?;
     let rows = stmt.query_map([], |row| {
-        Ok((
-            row.get::<_, String>(0)?,
-            row.get::<_, String>(1)?,
-        ))
+        Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?))
     })?;
 
     Ok(rows.flatten().collect())

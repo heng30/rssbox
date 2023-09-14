@@ -14,6 +14,7 @@ export struct Translation {
     warning: string,
     delete-or-not: string,
     reset-or-not: string,
+    author: string,
 
     setting-dialog-ui: string,
     setting-dialog-ui-font-size: string,
@@ -55,6 +56,10 @@ export struct Translation {
 
     no-data: string,
     no-message: string,
+
+    header-unread-entry-counts: string,
+    header-all-entry-counts: string,
+    header-all-update-time: string,
 
     tip-copy: string,
     tip-copy-url: string,
@@ -101,6 +106,8 @@ export global Translator {
             delete-or-not: is-cn ? "是否删除？" : "Are You Sure to Delete?",
             reset-or-not: is-cn ? "是否重置？" : "Reset or not?",
 
+            author: is-cn ? "作者: " : "Author: ",
+
             setting-dialog-ui: is-cn ? "界面" : "UI",
             setting-dialog-ui-font-size: is-cn ? "字体大小:" : "Font Size:",
             setting-dialog-ui-font-family: is-cn ? "字体样式:" : "Font Family:",
@@ -140,6 +147,10 @@ export global Translator {
 
             no-data: is-cn ? "没有数据" : "No Data",
             no-message: is-cn ? "没有信息" : "No Message",
+
+            header-unread-entry-counts: is-cn ? "未读数量: " : "Unread Counts: ",
+            header-all-entry-counts: is-cn ? "总数量: " : "Total Counts: ",
+            header-all-update-time: is-cn ? "更新时间: " : "Update Time: ",
 
             tip-copy: is-cn ? "复制" : "Copy",
             tip-copy-url: is-cn ? "复制网址" : "Copy URL",

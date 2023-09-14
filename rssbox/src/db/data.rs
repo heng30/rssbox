@@ -1,7 +1,7 @@
 use crate::slint_generatedAppWindow::{RssConfig as UIRssConfig, RssEntry as UIRssEntry, RssList};
 use std::fmt::Debug;
 
-fn feed_format_default() -> String{
+fn feed_format_default() -> String {
     "RSS".to_string()
 }
 
@@ -25,6 +25,8 @@ pub struct RssEntry {
     pub title: String,
     pub pub_date: String,
     pub tags: String,
+    pub author: String,
+    pub summary: String,
     pub is_read: bool,
 }
 
@@ -64,6 +66,8 @@ impl From<&UIRssEntry> for RssEntry {
             title: entry.title.clone().into(),
             tags: entry.tags.clone().into(),
             pub_date: entry.pub_date.clone().into(),
+            author: entry.author.clone().into(),
+            summary: entry.summary.clone().into(),
             is_read: entry.is_read,
         }
     }
@@ -78,6 +82,8 @@ impl From<RssEntry> for UIRssEntry {
             pub_date: entry.pub_date.into(),
             title: entry.title.into(),
             tags: entry.tags.into(),
+            author: entry.author.into(),
+            summary: entry.summary.into(),
             is_read: entry.is_read,
         }
     }

@@ -1,15 +1,12 @@
 use super::data::SyncItem;
 use super::entry;
-use crate::config;
-use crate::db;
 use crate::db::data::{RssConfig, RssEntry};
 use crate::slint_generatedAppWindow::{
     AppWindow, Logic, RssConfig as UIRssConfig, RssEntry as UIRssEntry, RssList, Store,
 };
-use crate::util::http as uhttp;
-use crate::util::translator::tr;
-use crate::CResult;
-use atom_syndication::{Feed, FixedDateTime, Link};
+use crate::util::{http as uhttp, time as utime, translator::tr};
+use crate::{config, db, CResult};
+use atom_syndication::{Feed, FixedDateTime, Link, TextType};
 use log::warn;
 use rss::Channel;
 use slint::{ComponentHandle, Model, ModelRc, VecModel, Weak};
@@ -85,15 +82,16 @@ fn init_rss(ui: &AppWindow) {
                     }
                 }
 
-                let mut unread_count = 0;
                 for mut entry in rss.entry.iter() {
                     if !entry.is_read {
-                        unread_count += 1;
-                        entry.tags = rss.name.as_str().into();
+                        entry.tags = if entry.tags.is_empty() {
+                            rss.name.as_str().into()
+                        } else {
+                            slint::format!("{},{}", rss.name, entry.tags)
+                        };
                         unread_entrys.push(entry);
                     }
                 }
-                rss.unread_count = unread_count;
 
                 if rss.uuid == UNREAD_UUID {
                     ui.global::<Store>().set_rss_entry(rss.entry.clone());
@@ -404,13 +402,50 @@ pub fn init(ui: &AppWindow) {
             }
         });
     });
+
+    let ui_handle = ui.as_weak();
+    ui.global::<Logic>()
+        .on_toggle_unread_count_flag(move |suuid| {
+            let ui = ui_handle.unwrap();
+            ui.global::<Store>().invoke_toggle_unread_count_flag();
+
+            for (index, mut rss) in ui.global::<Store>().get_rss_lists().iter().enumerate() {
+                if rss.uuid == suuid {
+                    rss.unread_counts_flag = !rss.unread_counts_flag;
+                    ui.global::<Store>()
+                        .get_rss_lists()
+                        .set_row_data(index, rss);
+                    return;
+                }
+            }
+        });
+
+    let ui_handle = ui.as_weak();
+    ui.global::<Logic>().on_get_update_time(move |suuid, _flag| {
+        let ui = ui_handle.unwrap();
+
+        for rss in ui.global::<Store>().get_rss_lists().iter() {
+            if rss.uuid == suuid {
+                return rss.update_time;
+            }
+        }
+        "".into()
+    });
 }
 
 fn update_new_entrys(ui: &AppWindow, suuid: String, entrys: Vec<RssEntry>) {
     let mut unread_entrys = ModelRc::default();
-    for rss in ui.global::<Store>().get_rss_lists().iter() {
+    for (index, mut rss) in ui.global::<Store>().get_rss_lists().iter().enumerate() {
         if rss.uuid == UNREAD_UUID {
             unread_entrys = rss.entry.clone();
+
+            rss.update_time = utime::local_now("%Y-%m-%d %H:%M").into();
+            ui.global::<Store>()
+                .get_rss_lists()
+                .set_row_data(index, rss);
+            ui.global::<Store>().invoke_toggle_update_time_flag();
+
+            continue;
         }
 
         if rss.uuid != suuid {
@@ -437,10 +472,21 @@ fn update_new_entrys(ui: &AppWindow, suuid: String, entrys: Vec<RssEntry>) {
                 }
             }
             if !found {
-                entry.tags = rss.name.to_string();
+                entry.tags = if entry.tags.is_empty() {
+                    rss.name.as_str().into()
+                } else {
+                    format!("{},{}", rss.name, entry.tags)
+                };
                 entry::update_new_entry(ui, &suuid, UNREAD_UUID, entry);
             }
         }
+
+        rss.update_time = utime::local_now("%Y-%m-%d %H:%M").into();
+        ui.global::<Store>()
+            .get_rss_lists()
+            .set_row_data(index, rss);
+        ui.global::<Store>().invoke_toggle_update_time_flag();
+
         return;
     }
 }
@@ -464,13 +510,22 @@ async fn fetch_entry(config: SyncItem) -> Result<Vec<RssEntry>, Box<dyn std::err
 
     let feed_format = config.feed_format.to_lowercase();
 
-    if  feed_format == "rss" {
+    if feed_format == "rss" {
         let ch = Channel::read_from(&content[..])?;
         for item in ch.items() {
             let url = item.link().unwrap_or("").to_string();
             let title = item.title().unwrap_or("").to_string();
-
+            let author = item.author().unwrap_or("").to_string();
+            let summary = item.description().unwrap_or("").to_string();
             let pub_date = item.pub_date().unwrap_or("").to_string();
+            let tags = item
+                .categories()
+                .iter()
+                .map(|c| c.name().to_string())
+                .collect::<Vec<_>>()
+                .join(",")
+                .to_string();
+
             if url.is_empty() || title.is_empty() {
                 continue;
             }
@@ -479,6 +534,9 @@ async fn fetch_entry(config: SyncItem) -> Result<Vec<RssEntry>, Box<dyn std::err
                 url,
                 title,
                 pub_date,
+                author,
+                summary,
+                tags,
                 uuid: Uuid::new_v4().to_string(),
                 ..Default::default()
             });
@@ -492,10 +550,37 @@ async fn fetch_entry(config: SyncItem) -> Result<Vec<RssEntry>, Box<dyn std::err
                 .unwrap_or(&Link::default())
                 .href()
                 .to_string();
-            let title = item.title().value.clone();
+            let title = item.title().as_str().to_string();
             let pub_date = item
                 .published()
                 .unwrap_or(&FixedDateTime::default())
+                .to_string();
+
+            let author = item
+                .authors()
+                .iter()
+                .map(|p| p.name().to_string())
+                .collect::<Vec<_>>()
+                .join("|")
+                .to_string();
+
+            let summary = if item.summary().is_some() {
+                let s = item.summary().unwrap();
+                if s.r#type == TextType::Text {
+                    s.as_str().to_string()
+                } else {
+                    "".to_string()
+                }
+            } else {
+                "".to_string()
+            };
+
+            let tags = item
+                .categories()
+                .iter()
+                .map(|c| c.term().to_string())
+                .collect::<Vec<_>>()
+                .join(",")
                 .to_string();
 
             if url.is_empty() || title.is_empty() {
@@ -506,6 +591,9 @@ async fn fetch_entry(config: SyncItem) -> Result<Vec<RssEntry>, Box<dyn std::err
                 url,
                 title,
                 pub_date,
+                author,
+                summary,
+                tags,
                 uuid: Uuid::new_v4().to_string(),
                 ..Default::default()
             });

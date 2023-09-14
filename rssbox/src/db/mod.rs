@@ -1,6 +1,6 @@
 pub mod data;
-pub mod rss;
 pub mod entry;
+pub mod rss;
 
 pub fn init() {
     rss::init().unwrap();
