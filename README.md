@@ -6,11 +6,11 @@
 This is a simple `RSS` client using `Slint-UI` and `Rust` to develop.
 
 #### Features
-[x] Support adding, deleting, and editing `RSS` sources
-[x] Support protocol formats: `RSS` and `Atom`
-[x] Support configuring automatic synchronization on startup
-[x] Support background synchronization
-[x] Support `Sock5` proxy
+- [x] Support adding, deleting, and editing `RSS` sources
+- [x] Support protocol formats: `RSS` and `Atom`
+- [x] Support configuring automatic synchronization on startup
+- [x] Support background synchronization
+- [x] Support `Sock5` proxy
 
 #### How to build?
 - Install `Rust` and `Cargo`
