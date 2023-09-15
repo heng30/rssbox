@@ -71,6 +71,7 @@ export struct SettingUI {
 
 export struct SettingRSS {
     sync-interval: int,
+    sync-interval-enabled: bool,
     sync-timeout: int,
     browser: string,
     start-sync: bool,
@@ -177,8 +178,10 @@ export global Store  {
 
     in-out property<{show: bool, text-cn: string, text-en: string}> help-dialog: {
         show: false,
-        text-cn: "",
-        text-en: "",
+        text-cn:  "  1. 新建RSS源时，注意选择RSS协议格式。\n"
+                + "  2. 启用自动同步后，同步间隔配置才会生效。\n",
+        text-en:  "  1. When creating a new RSS feed, pay attention to selecting the RSS protocol format.\n"
+                + "  2. The synchronization interval configuration will only take effect after enabling automatic synchronization.\n"
     };
 
 

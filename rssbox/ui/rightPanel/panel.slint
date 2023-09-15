@@ -8,7 +8,11 @@ export component RPanel inherits VerticalLayout {
         body.scroll-to-top();
     }
 
-    header := Header{ }
+    header := Header{
+        scroll-to-top => {
+            root.scroll-to-top();
+        }
+    }
 
     VerticalLayout {
         padding-left: Theme.scroll-width;
@@ -19,6 +23,7 @@ export component RPanel inherits VerticalLayout {
         }
     }
 
-    body := Body {}
+    body := Body {
+    }
 }
 

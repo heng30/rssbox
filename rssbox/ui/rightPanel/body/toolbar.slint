@@ -13,6 +13,7 @@ export component ToolBar inherits Rectangle {
     in-out property<string> url;
 
     in-out property<bool> is-up-summary: false;
+    callback up-summary(bool);
 
     HorizontalLayout {
         padding-bottom: Theme.padding;
@@ -25,10 +26,11 @@ export component ToolBar inherits Rectangle {
             CenterLayout {
                 IconBtn {
                 icon: root.is-up-summary ? @image-url("../../images/arrow-up.svg") : @image-url("../../images/arrow-down.svg");
-                    tip-text: Store.translator.tip-down-summary;
+                    tip-text: root.is-up-summary ? Store.translator.tip-down-summary : Store.translator.tip-up-summary;
                     tip-pos: "left";
                     clicked => {
                         root.is-up-summary = !root.is-up-summary;
+                        up-summary(root.is-up-summary);
                     }
                 }
             }

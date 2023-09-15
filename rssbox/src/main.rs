@@ -68,14 +68,19 @@ fn sync_rss(ui: &AppWindow) -> Timer {
     let timer = Timer::default();
     timer.start(TimerMode::Repeated, Duration::from_secs(10), move || {
         let config = config::rss();
-        let sync_interval = i64::max(config.sync_interval as i64, 1_i64) * 60;
         let now = Utc::now().timestamp();
-        if SYNC_TIMESTAMP_CACHE.load(Ordering::SeqCst) + sync_interval < now {
-            SYNC_TIMESTAMP_CACHE.store(now, Ordering::SeqCst);
 
-            let ui = ui_handle.unwrap();
-            ui.global::<Logic>()
-                .invoke_sync_rss(rss::UNREAD_UUID.into());
+        if config.sync_interval_enabled {
+            let sync_interval = i64::max(config.sync_interval as i64, 1_i64) * 60;
+            if SYNC_TIMESTAMP_CACHE.load(Ordering::SeqCst) + sync_interval < now {
+                SYNC_TIMESTAMP_CACHE.store(now, Ordering::SeqCst);
+
+                let ui = ui_handle.unwrap();
+                ui.global::<Logic>()
+                    .invoke_sync_rss(rss::UNREAD_UUID.into());
+            }
+        } else {
+            SYNC_TIMESTAMP_CACHE.store(now, Ordering::SeqCst);
         }
     });
     timer

@@ -15,8 +15,6 @@ export component Entry inherits Rectangle {
     in-out property<string> suuid;
     in-out property<string> url;
 
-    in-out property<bool> is-up-summary: false;
-
     background: Theme.light-fill-color;
     height: vbox.preferred-height;
     border-radius: Theme.border-radius;
@@ -25,6 +23,18 @@ export component Entry inherits Rectangle {
     drop-shadow-offset-x: Theme.padding;
     drop-shadow-offset-y: Theme.padding;
     drop-shadow-color: touch-1.has-hover || touch-2.has-hover || touch-3.has-hover ?  Theme.darker-fill-color.darker(20%) : Theme.dark-fill-color;
+
+    public function up-summary(flag: bool) {
+        if (flag) {
+            touch-3.visible = false;
+        } else {
+            if (root.summary == "") {
+                touch-3.visible = false;
+            } else {
+                touch-3.visible = true;
+            }
+        }
+    }
 
     touch-1 := TouchArea { }
 
@@ -55,10 +65,12 @@ export component Entry inherits Rectangle {
 
 
         touch-3 := TouchArea {
+            visible: summary-txt.text != "";
+            height: summary-txt.height;
+            mouse-cursor: text;
             summary-txt := TextInput {
-                visible: self.text != "" && !root.is-up-summary;
-                height: self.visible ? self.preferred-height : 0px;
-                color: Theme.regular-text-color;
+                height: parent.visible ? self.preferred-height : 0px;
+                color: root.is-read ? Theme.have-read-text-color : Theme.regular-text-color;
                 wrap: word-wrap;
                 read-only: true;
                 single-line: false;

@@ -32,9 +32,13 @@ export component Body inherits Rectangle {
                 suuid: item.suuid;
                 is-read: item.is-read;
                 url: item.url;
+
+                up-summary(flag) => {
+                    entry.up-summary(flag);
+                }
             }
 
-            Entry {
+            entry := Entry {
                 uuid: item.uuid;
                 suuid: item.suuid;
                 title: item.title;
@@ -44,7 +48,6 @@ export component Body inherits Rectangle {
                 pub-date-text: item.pub-date;
                 is-read: item.is-read;
                 url: item.url;
-                is-up-summary: tbar.is-up-summary;
             }
         }
     }

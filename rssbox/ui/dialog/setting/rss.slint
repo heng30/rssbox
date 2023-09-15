@@ -5,6 +5,7 @@ import { Label } from "../../base/label.slint";
 
 export component RSS inherits VerticalLayout {
     in-out property sync-interval <=> sync-interval-spin-box.value;
+    in-out property sync-interval-enabled <=> sync-interval-checkbox.checked;
     in-out property sync-timeout <=> sync-timeout-spin-box.value;
     in-out property browser <=> browser-lineedit.text;
     in-out property start-sync <=> start-sync-checkbox.checked;
@@ -49,9 +50,14 @@ export component RSS inherits VerticalLayout {
         }
 
         HorizontalLayout {
-            start-sync-checkbox := CheckBox {
-            text: self.checked ? Store.translator.setting-dialog-rss-start-sync-enabled : Store.translator.setting-dialog-rss-start-sync-disabled;
+            sync-interval-checkbox := CheckBox {
+                text: self.checked ? Store.translator.setting-dialog-rss-enabled-sync-interval : Store.translator.setting-dialog-rss-disabled-sync-interval;
             }
+
+            start-sync-checkbox := CheckBox {
+                text: self.checked ? Store.translator.setting-dialog-rss-start-sync-enabled : Store.translator.setting-dialog-rss-start-sync-disabled;
+            }
+
         }
     }
 }

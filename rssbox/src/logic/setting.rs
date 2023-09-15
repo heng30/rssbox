@@ -39,6 +39,7 @@ pub fn init(ui: &AppWindow) {
         config.ui.language = setting_config.ui.language.to_string();
 
         config.rss.sync_interval = setting_config.rss.sync_interval as u32;
+        config.rss.sync_interval_enabled = setting_config.rss.sync_interval_enabled;
         config.rss.sync_timeout = setting_config.rss.sync_timeout as u32;
         config.rss.browser = setting_config.rss.browser.to_string();
         config.rss.start_sync = setting_config.rss.start_sync;
@@ -81,6 +82,7 @@ fn init_setting_dialog(ui: Weak<AppWindow>) {
     setting_dialog.ui.language = ui_config.language.into();
 
     setting_dialog.rss.sync_interval = rss_config.sync_interval as i32;
+    setting_dialog.rss.sync_interval_enabled = rss_config.sync_interval_enabled;
     setting_dialog.rss.sync_timeout = rss_config.sync_timeout as i32;
     setting_dialog.rss.browser = rss_config.browser.into();
     setting_dialog.rss.start_sync = rss_config.start_sync;

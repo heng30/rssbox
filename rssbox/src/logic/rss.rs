@@ -519,7 +519,9 @@ async fn fetch_entry(config: SyncItem) -> Result<Vec<RssEntry>, Box<dyn std::err
 
             let summary = if item.description().is_some() {
                 let s = item.description().unwrap();
-                html2text::from_read(s.as_bytes(), 200).trim().to_string()
+                html2text::from_read(s.as_bytes(), usize::MAX)
+                    .trim()
+                    .to_string()
             } else {
                 "".to_string()
             };

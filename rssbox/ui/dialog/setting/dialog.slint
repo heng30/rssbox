@@ -77,6 +77,7 @@ export component SettingDialog inherits CDialog {
                 rss-tab := RSS {
                     visible: current-checked-item == "rss";
                     sync-interval: Store.setting-dialog-config.rss.sync-interval;
+                    sync-interval-enabled: Store.setting-dialog-config.rss.sync-interval-enabled;
                     sync-timeout: Store.setting-dialog-config.rss.sync-timeout;
                     browser: Store.setting-dialog-config.rss.browser;
                     start-sync: Store.setting-dialog-config.rss.start-sync;
@@ -106,6 +107,7 @@ export component SettingDialog inherits CDialog {
 
 
         rss-tab.sync-interval = Store.setting-dialog-config.rss.sync-interval;
+        rss-tab.sync-interval-enabled = Store.setting-dialog-config.rss.sync-interval-enabled;
         rss-tab.sync-timeout = Store.setting-dialog-config.rss.sync-timeout;
         rss-tab.browser = Store.setting-dialog-config.rss.browser;
         rss-tab.start-sync = Store.setting-dialog-config.rss.start-sync;
@@ -125,6 +127,7 @@ export component SettingDialog inherits CDialog {
             },
             rss: {
                 sync-interval: rss-tab.sync-interval,
+                sync-interval-enabled: rss-tab.sync-interval-enabled,
                 sync-timeout: rss-tab.sync-timeout,
                 browser: rss-tab.browser,
                 start-sync: rss-tab.start-sync

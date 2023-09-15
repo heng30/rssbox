@@ -9,6 +9,8 @@ import { Divider } from "../base/divider.slint";
 export component Header inherits Rectangle {
     height: Theme.header-height;
 
+    callback scroll-to-top();
+
     animate x {
         duration: Theme.default-animate-duration;
         easing: ease-in-out;
@@ -75,6 +77,15 @@ export component Header inherits Rectangle {
                 HorizontalLayout {
                     alignment: end;
                     spacing: Theme.spacing * 2;
+
+                    IconBtn {
+                        icon: @image-url("../images/scroll-top.svg");
+                        tip-pos: "left";
+                        tip-text: Store.translator.tip-scroll-to-top;
+                        clicked => {
+                            root.scroll-to-top();
+                        }
+                    }
 
                     IconBtn {
                         icon: @image-url("../images/reset.svg");

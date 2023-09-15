@@ -41,6 +41,7 @@ impl Default for UI {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct RSS {
     pub sync_interval: u32,
+    pub sync_interval_enabled: bool,
     pub sync_timeout: u32,
     pub browser: String,
     pub start_sync: bool,
@@ -50,6 +51,7 @@ impl Default for RSS {
     fn default() -> Self {
         Self {
             sync_interval: 60,
+            sync_interval_enabled: false,
             sync_timeout: 15,
             browser: "".to_string(),
             start_sync: false,
