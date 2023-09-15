@@ -7,6 +7,7 @@ use crate::slint_generatedAppWindow::{
 use crate::util::{http as uhttp, time as utime, translator::tr};
 use crate::{config, db, CResult};
 use atom_syndication::{Feed, FixedDateTime, Link, TextType};
+use html2text;
 use log::warn;
 use rss::Channel;
 use slint::{ComponentHandle, Model, ModelRc, VecModel, Weak};
@@ -518,15 +519,7 @@ async fn fetch_entry(config: SyncItem) -> Result<Vec<RssEntry>, Box<dyn std::err
 
             let summary = if item.description().is_some() {
                 let s = item.description().unwrap();
-                if s.contains("</a>")
-                    || s.contains("</p>")
-                    || s.contains("</div>")
-                    || s.contains("href=")
-                {
-                    "".to_string()
-                } else {
-                    s.to_string()
-                }
+                html2text::from_read(s.as_bytes(), 200).trim().to_string()
             } else {
                 "".to_string()
             };
@@ -615,6 +608,7 @@ async fn fetch_entry(config: SyncItem) -> Result<Vec<RssEntry>, Box<dyn std::err
         warn!("unimplemented feed format: {}", feed_format);
     }
 
+    entry = entry.into_iter().rev().collect();
     Ok(entry)
 }
 

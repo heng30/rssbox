@@ -85,6 +85,8 @@ export struct Translation {
     tip-set-all-read: string,
     tip-is-read: string,
     tip-is-not-read: string,
+    tip-down-summary: string,
+    tip-up-summary: string,
 }
 
 export global Translator {
@@ -176,6 +178,8 @@ export global Translator {
             tip-set-all-read: is-cn ? "全部标记为已读" : "Set All Entry Read",
             tip-is-read: is-cn ? "已读" : "Read",
             tip-is-not-read: is-cn ? "已读" : "Read",
+            tip-down-summary: is-cn ? "展开摘要" : "Down Summary",
+            tip-up-summary: is-cn ? "收起摘要" : "Up Summary",
         };
     }
 }

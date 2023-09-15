@@ -27,7 +27,7 @@ export component Body inherits Rectangle {
             padding-right: Theme.padding * 4;
             padding-bottom: Theme.padding * 2;
 
-            ToolBar {
+            tbar := ToolBar {
                 uuid: item.uuid;
                 suuid: item.suuid;
                 is-read: item.is-read;
@@ -44,6 +44,7 @@ export component Body inherits Rectangle {
                 pub-date-text: item.pub-date;
                 is-read: item.is-read;
                 url: item.url;
+                is-up-summary: tbar.is-up-summary;
             }
         }
     }
