@@ -4,7 +4,7 @@ use crate::db::data::{RssConfig, RssEntry};
 use crate::slint_generatedAppWindow::{
     AppWindow, Logic, RssConfig as UIRssConfig, RssEntry as UIRssEntry, RssList, Store,
 };
-use crate::util::{http as uhttp, time as utime, translator::tr};
+use crate::util::{crypto::md5_hex, http as uhttp, time as utime, translator::tr};
 use crate::{config, db, CResult};
 use atom_syndication::{Feed, FixedDateTime, Link, TextType};
 use html2text;
@@ -610,7 +610,14 @@ async fn fetch_entry(config: SyncItem) -> Result<Vec<RssEntry>, Box<dyn std::err
         warn!("unimplemented feed format: {}", feed_format);
     }
 
-    entry = entry.into_iter().rev().collect();
+    entry = entry
+        .into_iter()
+        .filter(|e| match db::trash::is_exist(&md5_hex(e.url.as_str())) {
+            Ok(flag) => flag,
+            _ => false,
+        })
+        .rev()
+        .collect();
     Ok(entry)
 }
 

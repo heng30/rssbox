@@ -1,6 +1,6 @@
-use crate::config;
 use crate::slint_generatedAppWindow::{AppWindow, Logic, Store};
 use crate::util::translator::tr;
+use crate::{config, db};
 use slint::{ComponentHandle, Weak};
 
 pub fn init(ui: &AppWindow) {
@@ -66,6 +66,16 @@ pub fn init(ui: &AppWindow) {
             }
         }
     });
+
+    let ui_handle = ui.as_weak();
+    ui.global::<Logic>().on_clear_trash_box(move || {
+        let ui = ui_handle.unwrap();
+        let mut setting_dialog = ui.global::<Store>().get_setting_dialog_config();
+        setting_dialog.rss.trash_count = 0;
+        ui.global::<Store>()
+            .set_setting_dialog_config(setting_dialog);
+        let _ = db::trash::delete_all();
+    });
 }
 
 fn init_setting_dialog(ui: Weak<AppWindow>) {
@@ -86,6 +96,7 @@ fn init_setting_dialog(ui: Weak<AppWindow>) {
     setting_dialog.rss.sync_timeout = rss_config.sync_timeout as i32;
     setting_dialog.rss.browser = rss_config.browser.into();
     setting_dialog.rss.start_sync = rss_config.start_sync;
+    setting_dialog.rss.trash_count = db::trash::row_count().unwrap_or(0_usize) as i32;
 
     setting_dialog.proxy.url = socks5_config.url.into();
     setting_dialog.proxy.port = slint::format!("{}", socks5_config.port);

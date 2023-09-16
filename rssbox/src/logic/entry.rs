@@ -5,7 +5,7 @@ use crate::rss;
 use crate::slint_generatedAppWindow::{
     AppWindow, Logic, RssEntry as UIRssEntry, RssList as UIRssList, Store,
 };
-use crate::util::translator::tr;
+use crate::util::{crypto::md5_hex, translator::tr};
 use cmd_lib::run_cmd;
 use log::warn;
 use slint::{ComponentHandle, Model, ModelRc, SharedString, VecModel};
@@ -187,6 +187,8 @@ fn remove_entry(ui: &AppWindow, suuid: &str, uuid: &str) {
                     ui.global::<Logic>()
                         .invoke_show_message(tr("删除成功！").into(), "success".into());
                 }
+
+                let _ = db::trash::insert(&md5_hex(entry.url.as_str()));
             }
 
             rss.entry

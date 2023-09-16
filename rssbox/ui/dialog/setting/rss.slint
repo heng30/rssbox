@@ -2,6 +2,7 @@ import { SpinBox, CheckBox, LineEdit } from "std-widgets.slint";
 import { Theme } from "../../theme.slint";
 import { Store } from "../../store.slint";
 import { Label } from "../../base/label.slint";
+import { Btn } from "../../base/btn.slint";
 
 export component RSS inherits VerticalLayout {
     in-out property sync-interval <=> sync-interval-spin-box.value;
@@ -57,7 +58,14 @@ export component RSS inherits VerticalLayout {
             start-sync-checkbox := CheckBox {
                 text: self.checked ? Store.translator.setting-dialog-rss-start-sync-enabled : Store.translator.setting-dialog-rss-start-sync-disabled;
             }
+        }
 
+        HorizontalLayout {
+            Btn {
+                bg-color: Theme.danger-color;
+                text: Store.translator.setting-dialog-rss-clear-trash + " (" + Store.setting-dialog-config.rss.trash-count + ")";
+
+            }
         }
     }
 }
