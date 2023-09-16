@@ -1,13 +1,13 @@
 [package]
 name = "rssbox"
-version = "0.1.0"
+version = "0.5.0"
 authors = ["heng30.xyz"]
 edition = "2021"
 build = "build.rs"
 description = "RSS Client In Rust"
 license = "MIT"
 categories= ["RSS", "Slint"]
-keywords= ["RSS", "Slint", "Rust"]
+keywords= ["RSS", "Atom", "Slint", "Rust"]
 
 [dependencies]
 log = "0.4"
