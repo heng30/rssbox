@@ -146,6 +146,10 @@ fn set_read_entry(ui: &AppWindow, suuid: &str, uuid: &str) {
 }
 
 fn remove_all_entry(ui: &AppWindow, suuid: &str) {
+    for entry in ui.global::<Store>().get_rss_entry().iter() {
+        let _ = db::trash::insert(&md5_hex(entry.url.as_str()));
+    }
+
     ui.global::<Store>()
         .get_rss_entry()
         .as_any()

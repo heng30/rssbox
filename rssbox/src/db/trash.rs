@@ -43,7 +43,8 @@ pub fn is_exist(md5: &str) -> Result<bool> {
     Ok(cnt == 1)
 }
 
-pub fn row_count() -> Result<usize> {
+pub fn row_count() -> Result<i32> {
     let conn = connection()?;
-    conn.execute("SELECT COUNT(*) FROM trash", [])
+    let cnt = conn.query_row::<i32, _, _>("SELECT COUNT(*) FROM trash", [], |r| r.get(0))?;
+    Ok(cnt)
 }

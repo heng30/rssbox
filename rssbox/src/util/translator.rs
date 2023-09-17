@@ -37,6 +37,7 @@ pub fn tr(text: &str) -> String {
     items.insert("同步失败！", "Sync Failed!");
     items.insert("同步成功！", "Sync Success!!");
     items.insert("正在重试...", "retrying...");
+    items.insert("正在同步...", "Sync...");
 
     if let Some(txt) = items.get(text) {
         return txt.to_string();

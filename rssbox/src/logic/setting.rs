@@ -75,6 +75,9 @@ pub fn init(ui: &AppWindow) {
         ui.global::<Store>()
             .set_setting_dialog_config(setting_dialog);
         let _ = db::trash::delete_all();
+
+        ui.global::<Logic>()
+            .invoke_show_message("清空成功！".into(), "success".into());
     });
 }
 
@@ -96,7 +99,7 @@ fn init_setting_dialog(ui: Weak<AppWindow>) {
     setting_dialog.rss.sync_timeout = rss_config.sync_timeout as i32;
     setting_dialog.rss.browser = rss_config.browser.into();
     setting_dialog.rss.start_sync = rss_config.start_sync;
-    setting_dialog.rss.trash_count = db::trash::row_count().unwrap_or(0_usize) as i32;
+    setting_dialog.rss.trash_count = db::trash::row_count().unwrap_or(0_i32);
 
     setting_dialog.proxy.url = socks5_config.url.into();
     setting_dialog.proxy.port = slint::format!("{}", socks5_config.port);

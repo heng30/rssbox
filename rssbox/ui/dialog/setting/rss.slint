@@ -3,6 +3,7 @@ import { Theme } from "../../theme.slint";
 import { Store } from "../../store.slint";
 import { Label } from "../../base/label.slint";
 import { Btn } from "../../base/btn.slint";
+import { Logic } from "../../logic.slint";
 
 export component RSS inherits VerticalLayout {
     in-out property sync-interval <=> sync-interval-spin-box.value;
@@ -64,6 +65,10 @@ export component RSS inherits VerticalLayout {
             Btn {
                 bg-color: Theme.danger-color;
                 text: Store.translator.setting-dialog-rss-clear-trash + " (" + Store.setting-dialog-config.rss.trash-count + ")";
+                icon: @image-url("../../images/warning.svg");
+                clicked => {
+                    Logic.clear-trash-box();
+                }
 
             }
         }

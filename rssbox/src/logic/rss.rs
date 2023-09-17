@@ -394,6 +394,8 @@ pub fn init(ui: &AppWindow) {
         }
 
         let ui_handle = ui.as_weak();
+        ui.global::<Logic>()
+            .invoke_show_message("正在同步...".into(), "info".into());
         spawn(async move {
             if let Err(e) = sync_rss(ui_handle, items).await {
                 warn!("{:?}", e);
@@ -613,11 +615,12 @@ async fn fetch_entry(config: SyncItem) -> Result<Vec<RssEntry>, Box<dyn std::err
     entry = entry
         .into_iter()
         .filter(|e| match db::trash::is_exist(&md5_hex(e.url.as_str())) {
-            Ok(flag) => flag,
-            _ => false,
+            Ok(flag) => !flag,
+            _ => true,
         })
         .rev()
         .collect();
+
     Ok(entry)
 }
 
