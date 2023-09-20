@@ -181,10 +181,12 @@ export global Store  {
         show: false,
         text-cn:  "  1. 新建RSS源时，注意选择RSS协议格式。\n"
                 + "  2. 启用自动同步后，同步间隔配置才会生效。\n"
-                + "  3. 删除的条目会被标记为永久删除，并保存到垃圾箱。被删除的条目重新刷新也不会加入展示列表。清除垃圾箱可恢复。\n",
+                + "  3. 删除的条目会被标记为永久删除，并保存到垃圾箱。被删除的条目重新刷新也不会加入展示列表。清除垃圾箱可恢复。\n"
+                + "  4. 不设置浏览器，则使用默认浏览器打开链接。\n",
         text-en:  "  1. When creating a new RSS feed, pay attention to selecting the RSS protocol format.\n"
                 + "  2. The synchronization interval configuration will only take effect after enabling automatic synchronization.\n"
                 + "  3. Deleted items will be permanently marked as deleted and kept in the trash. Refreshing the deleted items will not add them back to the display list. Trash can be cleared to restore them.\n"
+                + "  4. If no browser is set, the default browser will be used to open the link.\n"
     };
 
     in-out property<IconDialogSetting> icon-dialog-setting: {

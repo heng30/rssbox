@@ -407,6 +407,10 @@ pub fn init(ui: &AppWindow) {
 
     let ui_handle = ui.as_weak();
     ui.global::<Logic>().on_favorite_entry(move |suuid, uuid| {
+        if suuid == rss::FAVORITE_UUID {
+            return;
+        }
+
         let ui = ui_handle.unwrap();
 
         for mut entry in ui.global::<Store>().get_rss_entry().iter() {
@@ -414,7 +418,10 @@ pub fn init(ui: &AppWindow) {
                 continue;
             }
 
-            entry.tags = get_rsslist(&ui, suuid.as_str()).name;
+            if suuid != rss::UNREAD_UUID {
+                entry.tags =
+                    slint::format!("{},{}", get_rsslist(&ui, suuid.as_str()).name, entry.tags);
+            }
             entry.is_read = true;
 
             match serde_json::to_string(&RssEntry::from(&entry)) {
