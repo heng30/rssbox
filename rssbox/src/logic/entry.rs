@@ -210,8 +210,12 @@ fn remove_entry(ui: &AppWindow, suuid: &str, uuid: &str) {
 pub fn init(ui: &AppWindow) {
     ui.global::<Logic>().on_parse_tags(move |tags| {
         let items: Vec<_> = tags
+            .trim()
+            .trim_start_matches(',')
+            .trim_end_matches(',')
             .split(',')
             .map(|tag| SharedString::from(tag.trim()))
+            .filter(|tag| !tag.is_empty())
             .collect();
 
         ModelRc::new(VecModel::from(items))
@@ -419,8 +423,12 @@ pub fn init(ui: &AppWindow) {
             }
 
             if suuid != rss::UNREAD_UUID {
-                entry.tags =
-                    slint::format!("{},{}", get_rsslist(&ui, suuid.as_str()).name, entry.tags);
+                if entry.tags.is_empty() {
+                    entry.tags = get_rsslist(&ui, suuid.as_str()).name;
+                } else {
+                    entry.tags =
+                        slint::format!("{},{}", get_rsslist(&ui, suuid.as_str()).name, entry.tags);
+                }
             }
             entry.is_read = true;
 

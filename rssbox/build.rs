@@ -23,6 +23,7 @@ fn write_app_version() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
+#[allow(dead_code)]
 fn link_win_lib() {
     // println!("cargo:rustc-link-lib=sqlite3");
     println!("cargo:rustc-link-search=win/lib");

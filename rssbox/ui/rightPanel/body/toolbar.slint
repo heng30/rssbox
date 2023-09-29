@@ -37,23 +37,23 @@ export component ToolBar inherits Rectangle {
 
             CenterLayout {
                 IconBtn {
-                    icon: @image-url("../../images/star-light.svg");
-                    tip-text: Store.translator.tip-favorite;
+                    icon: @image-url("../../images/link.svg");
+                    icon-width: self.width * 0.7;
+                    tip-text: Store.translator.tip-copy-url;
                     tip-pos: "left";
                     clicked => {
-                        Logic.favorite-entry(Store.current-rss-uuid, root.uuid);
+                        Logic.copy-to-clipboard(root.url);
                     }
                 }
             }
 
             CenterLayout {
                 IconBtn {
-                    icon: @image-url("../../images/copy.svg");
-                    icon-width: self.width * 0.7;
-                    tip-text: Store.translator.tip-copy-url;
+                    icon: @image-url("../../images/star-light.svg");
+                    tip-text: Store.translator.tip-favorite;
                     tip-pos: "left";
                     clicked => {
-                        Logic.copy-to-clipboard(root.url);
+                        Logic.favorite-entry(Store.current-rss-uuid, root.uuid);
                     }
                 }
             }
