@@ -12,8 +12,7 @@ export global Theme  {
     out property<length> border-radius: 4px;
     out property<length> scroll-width: 12px;
     out property<length> max-image-width: 300px;
-
-    out property<length> left-panel-width: 450px;
+    out property<length> left-panel-width: 400px;
 
     in-out property<length> default-width: Store.setting-dialog-config.ui.win-width.to-float() * 1px;
     in-out property<length> default-height: Store.setting-dialog-config.ui.win-height.to-float() * 1px;
@@ -80,7 +79,7 @@ export global Theme  {
         if (Theme.left-panel-width > 0) {
             Theme.left-panel-width = 0;
         } else {
-            Theme.left-panel-width = 450px;
+            Theme.left-panel-width = 400px;
         }
     }
 }

@@ -34,6 +34,9 @@ clean:
 install:
 	cp -rf ./target/release/rssbox ~/bin/
 
+pack-win:
+	./pack-win-package.sh
+
 slint-view:
 	# slint-viewer --style native --auto-reload -I rssbox/ui ./rssbox/ui/appwindow.slint
 	# slint-viewer --style material --auto-reload -I rssbox/ui ./rssbox/ui/appwindow.slint
