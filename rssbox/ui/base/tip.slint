@@ -15,7 +15,7 @@ export component Tip inherits Rectangle {
         y: (pos == "left" || pos == "right") ? (pheight - self.height) / 2 : (pos == "bottom" ? pheight + Theme.padding : -self.height - Theme.padding);
 
         width: tip-txt.preferred-width + Theme.padding * 2;
-        height: tip-txt.preferred-height + Theme.padding;
+        height: tip-txt.preferred-height + Theme.padding / 2;
         background: Theme.basic-white-color;
         border-color: Theme.basic-black-color;
         border-width: 1px;
