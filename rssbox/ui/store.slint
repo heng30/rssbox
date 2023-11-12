@@ -219,7 +219,7 @@ export global Store  {
         ],
     };
 
-    pure function rss-name(uuid: string, name: string) -> string {
+    pure public function rss-name(uuid: string, name: string) -> string {
         if (uuid == "unread-uuid") {
             return Store.translator.rss-unread;
         }  else if (uuid == "favorite-uuid") {
