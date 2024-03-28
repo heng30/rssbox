@@ -524,8 +524,10 @@ async fn fetch_entry(config: SyncItem) -> Result<Vec<RssEntry>, Box<dyn std::err
                 let s = html2text::from_read(s.as_bytes(), usize::MAX)
                     .trim()
                     .to_string();
-                if s.len() > 200 {
-                    format!("{}...", &s[..200])
+
+                let s_chars = s.chars().collect::<Vec<_>>();
+                if s_chars.len() > 200 {
+                    format!("{}...", s_chars[..200].iter().collect::<String>())
                 } else {
                     s
                 }
